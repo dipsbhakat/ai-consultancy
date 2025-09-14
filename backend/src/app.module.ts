@@ -7,6 +7,7 @@ import { BullModule } from '@nestjs/bull';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigService } from './config/config.service';
     ProjectsModule,
     VectorStoreModule,
     WorkersModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

@@ -23,10 +23,14 @@ services:
       dockerfile: Dockerfile.backend
     environment:
       - NODE_ENV=production
+      - RENDER_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
+      - RENDER_REDIS_URL=redis://redis:6379
       - REDIS_URL=redis://redis:6379
       - RENDER_JWT_SECRET=${JWT_SECRET:-local-development-secret}
+      - JWT_SECRET=${JWT_SECRET:-local-development-secret}
       - RENDER_OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     ports:
       - "3000:3000"
     depends_on:

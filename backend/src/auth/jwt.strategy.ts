@@ -6,9 +6,13 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private prisma: PrismaService) {
+    const secret = process.env.RENDER_JWT_SECRET || process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT secret not found. Set either RENDER_JWT_SECRET or JWT_SECRET environment variable.');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: secret,
     });
   }
 

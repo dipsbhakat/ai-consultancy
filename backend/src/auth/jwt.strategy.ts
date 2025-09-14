@@ -2,17 +2,17 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private prisma: PrismaService) {
-    const secret = process.env.RENDER_JWT_SECRET || process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT secret not found. Set either RENDER_JWT_SECRET or JWT_SECRET environment variable.');
-    }
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: secret,
+      secretOrKey: config.jwtSecret,
     });
   }
 

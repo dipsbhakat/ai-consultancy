@@ -6,6 +6,7 @@ import { WorkersModule } from './workers/workers.module';
 import { BullModule } from '@nestjs/bull';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from './config/config.module';
+import { ConfigService } from './config/config.service';
 
 @Module({
   imports: [

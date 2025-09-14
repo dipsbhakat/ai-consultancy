@@ -1,0 +1,41 @@
+# Backend Dockerfile
+FROM node:16-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy source
+COPY . .
+
+# Build backend
+RUN npm run build
+
+# Production image
+FROM node:16-alpine
+
+# Set production environment
+
+WORKDIR /app
+
+# Copy built assets and configuration
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Set production environment
+ENV NODE_ENV=production
+
+# Expose port
+EXPOSE 3000
+
+# Start application
+CMD ["npm", "run", "start:prod"]

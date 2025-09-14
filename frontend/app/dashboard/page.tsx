@@ -1,4 +1,4 @@
-import { ProjectList } from '@/components/projects/project-list';
+import { ProjectList } from '@/components/projects/ProjectList';
 import { NewProjectButton } from '@/components/projects/new-project-button';
 import { Suspense } from 'react';
 import { ProjectsSkeleton } from '@/components/projects/projects-skeleton';

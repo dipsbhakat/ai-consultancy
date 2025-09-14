@@ -7,8 +7,12 @@ export class VectorStoreService {
   private openai: OpenAI;
 
   constructor(private prisma: PrismaService) {
+    const apiKey = process.env.RENDER_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key not found. Set either RENDER_OPENAI_API_KEY or OPENAI_API_KEY environment variable.');
+    }
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: apiKey,
     });
   }
 

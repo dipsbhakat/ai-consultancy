@@ -1,14 +1,14 @@
-# Backend Dockerfile
+# Backend Production Dockerfile
 FROM node:16-alpine AS builder
 
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm install
 
 # Copy source
-COPY . .
+COPY backend/ .
 
 # Build backend
 RUN npm run build
@@ -17,16 +17,15 @@ RUN npm run build
 FROM node:16-alpine
 
 # Set production environment
-
 WORKDIR /app
 
 # Copy built assets and configuration
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY nest-cli.json ./
+COPY backend/package*.json ./
+COPY backend/tsconfig.json ./
+COPY backend/nest-cli.json ./
 
 # Generate Prisma client
 RUN npx prisma generate

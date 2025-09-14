@@ -19,14 +19,14 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.backend
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=local-development-secret
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RENDER_OPENAI_API_KEY=${OPENAI_API_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -35,22 +35,22 @@ services:
 
   worker:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.worker
+      context: .
+      dockerfile: Dockerfile.backend.worker
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=local-development-secret
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RENDER_OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - postgres
       - redis
 
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.frontend
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=http://localhost:3000

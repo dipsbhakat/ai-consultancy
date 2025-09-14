@@ -1,7 +1,7 @@
 import { ProjectList } from '@/components/projects/ProjectList';
-import { NewProjectButton } from '@/components/projects/new-project-button';
+import { NewProjectButton } from '@/components/projects/NewProjectButton';
 import { Suspense } from 'react';
-import { ProjectsSkeleton } from '@/components/projects/projects-skeleton';
+import { ProjectsSkeleton } from '@/components/projects/ProjectsSkeleton';
 
 export default function DashboardPage() {
   return (

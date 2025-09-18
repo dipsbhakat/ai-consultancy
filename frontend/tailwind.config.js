@@ -97,9 +97,9 @@ export default {
         display: ['Cal Sans', 'Inter Variable', 'Inter', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        'hero': ['5.5rem', { lineHeight: '0.9', letterSpacing: '-0.04em' }],
-        'display': ['4rem', { lineHeight: '1', letterSpacing: '-0.03em' }],
-        '6xl': ['3.75rem', { lineHeight: '1', letterSpacing: '-0.025em' }],
+        'hero': ['5.5rem', { lineHeight: '1.1', letterSpacing: '-0.04em' }],
+        'display': ['4rem', { lineHeight: '1.1', letterSpacing: '-0.03em' }],
+        '6xl': ['3.75rem', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
         '5xl': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
         '4xl': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],
       },

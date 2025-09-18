@@ -116,9 +116,13 @@
 
   .hero-text {
     @apply text-6xl sm:text-hero font-bold tracking-tight;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 
   .display-text {
     @apply text-4xl sm:text-display font-bold tracking-tight;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 }

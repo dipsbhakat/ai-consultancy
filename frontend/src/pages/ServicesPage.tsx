@@ -17,9 +17,7 @@ export function ServicesPage() {
             className="mx-auto max-w-4xl text-center"
           >
             <h1 className="hero-text text-gradient-hero mb-8">
-              Our <span className="relative inline-block">Services
-                <div className="absolute -inset-1 bg-gradient-to-r from-accent-300/30 to-cta-300/30 rounded-lg blur-lg"></div>
-              </span>
+              Our <span className="text-gradient">Services</span>
             </h1>
             <p className="text-xl leading-relaxed text-accent-100 max-w-3xl mx-auto">
               We offer comprehensive AI and software development solutions tailored to your business needs.

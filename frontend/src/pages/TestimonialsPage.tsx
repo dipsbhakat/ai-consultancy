@@ -88,34 +88,38 @@ export function TestimonialsPage() {
             {/* Navigation Buttons */}
             <button
               onClick={prevTestimonial}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="absolute left-2 lg:left-0 top-1/2 -translate-y-1/2 lg:-translate-x-4 p-3 lg:p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[44px] min-w-[44px] z-10"
               aria-label="Previous testimonial"
             >
-              <ChevronLeft className="h-6 w-6 text-muted-600" />
+              <ChevronLeft className="h-5 w-5 lg:h-6 lg:w-6 text-muted-600" />
             </button>
             
             <button
               onClick={nextTestimonial}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="absolute right-2 lg:right-0 top-1/2 -translate-y-1/2 lg:translate-x-4 p-3 lg:p-2 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[44px] min-w-[44px] z-10"
               aria-label="Next testimonial"
             >
-              <ChevronRight className="h-6 w-6 text-muted-600" />
+              <ChevronRight className="h-5 w-5 lg:h-6 lg:w-6 text-muted-600" />
             </button>
           </div>
 
           {/* Dots Indicator */}
-          <div className="flex justify-center space-x-2 mt-8">
+          <div className="flex justify-center space-x-3 mt-8">
             {testimonials.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToTestimonial(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                className={`w-4 h-4 lg:w-3 lg:h-3 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0 flex items-center justify-center ${
                   index === currentIndex
                     ? 'bg-primary-600 scale-110'
                     : 'bg-muted-300 hover:bg-muted-400'
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
-              />
+              >
+                <span className={`w-3 h-3 rounded-full ${
+                  index === currentIndex ? 'bg-white lg:bg-primary-600' : 'bg-muted-600 lg:bg-muted-300'
+                } lg:w-3 lg:h-3`} />
+              </button>
             ))}
           </div>
         </div>

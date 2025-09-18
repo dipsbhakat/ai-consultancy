@@ -49,24 +49,24 @@ export function HomePage() {
   return (
     <div className="bg-white overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center gradient-mesh">
+      <section className="relative min-h-[100svh] lg:min-h-screen flex items-center gradient-mesh overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-32 w-96 h-96 bg-gradient-to-br from-accent-400/30 to-electric-400/30 rounded-full blur-3xl animate-pulse-slow"></div>
-          <div className="absolute -bottom-40 -left-32 w-96 h-96 bg-gradient-to-br from-cta-400/30 to-neon-500/30 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-sunset-400/20 to-primary-500/20 rounded-full blur-2xl animate-float"></div>
+          <div className="absolute -top-40 -right-32 w-72 h-72 lg:w-96 lg:h-96 bg-gradient-to-br from-accent-400/30 to-electric-400/30 rounded-full blur-3xl animate-pulse-slow"></div>
+          <div className="absolute -bottom-40 -left-32 w-72 h-72 lg:w-96 lg:h-96 bg-gradient-to-br from-cta-400/30 to-neon-500/30 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/4 left-1/4 w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-br from-sunset-400/20 to-primary-500/20 rounded-full blur-2xl animate-float"></div>
         </div>
         
-        <div className="container-custom relative z-10">
+        <div className="container-custom relative z-10 py-12 lg:py-0">
           <div className="mx-auto max-w-4xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mb-8"
+              className="mb-6 lg:mb-8"
             >
-              <span className="glass-effect inline-flex items-center rounded-full px-6 py-3 text-sm font-semibold text-white ring-1 ring-inset ring-accent-400/30">
-                <Sparkles className="w-4 h-4 mr-2 text-accent-300" />
+              <span className="glass-effect inline-flex items-center rounded-full px-4 py-2 lg:px-6 lg:py-3 text-xs lg:text-sm font-semibold text-white ring-1 ring-inset ring-accent-400/30">
+                <Sparkles className="w-3 h-3 lg:w-4 lg:h-4 mr-2 text-accent-300" />
                 Revolutionary AI Solutions for Modern Business
               </span>
             </motion.div>
@@ -75,7 +75,7 @@ export function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="hero-text text-gradient-hero mb-8"
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-hero font-bold tracking-tight text-gradient-hero mb-6 lg:mb-8 px-4 sm:px-0"
             >
               Transform Your Business with{' '}
               <span className="relative inline-block">
@@ -88,7 +88,7 @@ export function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl leading-relaxed text-accent-100 max-w-3xl mx-auto mb-12"
+              className="text-base sm:text-lg lg:text-xl leading-relaxed text-accent-100 max-w-3xl mx-auto mb-8 lg:mb-12 px-4 sm:px-0"
             >
               We specialize in developing cutting-edge AI solutions, custom software, and data analytics 
               platforms that drive growth, efficiency, and competitive advantage for forward-thinking businesses.
@@ -98,15 +98,15 @@ export function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6"
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 lg:gap-6 px-4 sm:px-0"
             >
-              <Link to="/contact" className="btn-cta text-lg px-8 py-4 group">
+              <Link to="/contact" className="btn-cta text-base lg:text-lg px-6 py-3 lg:px-8 lg:py-4 group w-full sm:w-auto min-h-[44px]">
                 Start Your Transformation
-                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="ml-3 h-4 w-4 lg:h-5 lg:w-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
               <Link
                 to="/services"
-                className="btn-ghost text-lg px-8 py-4 group"
+                className="btn-ghost text-base lg:text-lg px-6 py-3 lg:px-8 lg:py-4 group w-full sm:w-auto min-h-[44px]"
               >
                 Explore Solutions
                 <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">→</span>
@@ -115,12 +115,12 @@ export function HomePage() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* Scroll indicator - hidden on mobile, visible on larger screens */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          className="absolute bottom-6 lg:bottom-8 left-1/2 transform -translate-x-1/2 hidden sm:block"
         >
           <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-bounce"></div>

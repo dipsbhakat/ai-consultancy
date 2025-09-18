@@ -119,7 +119,7 @@ export function ContactPage() {
                       type="text"
                       id="name"
                       {...register('name')}
-                      className={`block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 ${
+                      className={`block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200 ${
                         errors.name ? 'ring-red-300' : 'ring-muted-300'
                       }`}
                       placeholder="Your full name"
@@ -140,7 +140,7 @@ export function ContactPage() {
                       type="email"
                       id="email"
                       {...register('email')}
-                      className={`block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 ${
+                      className={`block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200 ${
                         errors.email ? 'ring-red-300' : 'ring-muted-300'
                       }`}
                       placeholder="your@email.com"
@@ -163,8 +163,8 @@ export function ContactPage() {
                       type="tel"
                       id="phone"
                       {...register('phone')}
-                      className="block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                      placeholder="+1 (555) 123-4567"
+                      className="block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200"
+                      placeholder="+91 (000) 123-4567"
                     />
                   </div>
 
@@ -176,7 +176,7 @@ export function ContactPage() {
                       type="text"
                       id="company"
                       {...register('company')}
-                      className="block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                      className="block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200"
                       placeholder="Your company name"
                     />
                   </div>
@@ -190,7 +190,7 @@ export function ContactPage() {
                     <select
                       id="projectType"
                       {...register('projectType')}
-                      className="block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                      className="block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200 bg-white"
                     >
                       <option value="">Select a project type</option>
                       {projectTypes.map((type) => (
@@ -208,7 +208,7 @@ export function ContactPage() {
                     <select
                       id="budget"
                       {...register('budget')}
-                      className="block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                      className="block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset ring-muted-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[44px] transition-colors duration-200 bg-white"
                     >
                       <option value="">Select a budget range</option>
                       {budgetRanges.map((range) => (
@@ -228,7 +228,7 @@ export function ContactPage() {
                     id="message"
                     rows={4}
                     {...register('message')}
-                    className={`block w-full rounded-md border-0 px-3.5 py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 ${
+                    className={`block w-full rounded-md border-0 px-3.5 py-3 lg:py-2 text-muted-900 shadow-sm ring-1 ring-inset placeholder:text-muted-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 min-h-[100px] transition-colors duration-200 resize-y ${
                       errors.message ? 'ring-red-300' : 'ring-muted-300'
                     }`}
                     placeholder="Tell us about your project requirements..."
@@ -274,7 +274,7 @@ export function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-cta w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-cta w-full disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px] text-base lg:text-lg font-semibold"
                 >
                   {isSubmitting ? (
                     <>

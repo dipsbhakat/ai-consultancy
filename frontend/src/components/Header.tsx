@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,38 @@ const navigation = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  // Close mobile menu on route change and handle body scroll
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [mobileMenuOpen]);
 
   return (
     <header className="bg-white/97 backdrop-blur-md sticky top-0 z-50 border-b border-muted-200/60 shadow-elegant">
@@ -31,10 +63,12 @@ export function Header() {
         <div className="flex lg:hidden">
           <button
             type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-xl p-2.5 text-muted-700 hover:bg-muted-100 transition-colors duration-200 lg:!hidden"
+            className="-m-2.5 inline-flex items-center justify-center rounded-xl p-3 text-muted-700 hover:bg-muted-100 transition-colors duration-200 lg:!hidden min-h-[44px] min-w-[44px]"
             onClick={() => setMobileMenuOpen(true)}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+            aria-label="Open navigation menu"
           >
-            <span className="sr-only">Open main menu</span>
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
@@ -84,8 +118,14 @@ export function Header() {
             className="lg:hidden fixed inset-0 z-50"
             role="dialog"
             aria-modal="true"
+            aria-labelledby="mobile-menu-title"
+            id="mobile-menu"
           >
-            <div className="fixed inset-0 bg-muted-900/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+            <div 
+              className="fixed inset-0 bg-muted-900/80 backdrop-blur-sm" 
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -104,10 +144,10 @@ export function Header() {
                 </Link>
                 <button
                   type="button"
-                  className="-m-2.5 rounded-xl p-2.5 text-muted-700 hover:bg-muted-100 transition-colors duration-200"
+                  className="-m-2.5 rounded-xl p-3 text-muted-700 hover:bg-muted-100 transition-colors duration-200 min-h-[44px] min-w-[44px]"
                   onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close navigation menu"
                 >
-                  <span className="sr-only">Close menu</span>
                   <X className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>

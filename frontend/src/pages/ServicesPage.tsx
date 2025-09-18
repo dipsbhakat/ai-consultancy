@@ -30,7 +30,7 @@ export function ServicesPage() {
       {/* Services Grid */}
       <section className="section-padding bg-gradient-to-br from-white to-primary-50/30">
         <div className="container-custom">
-          <div className="grid max-w-6xl mx-auto grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="grid max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => {
               // Dynamically get the icon component
               const IconComponent = Icons[service.icon as keyof typeof Icons] as React.ComponentType<{ className?: string }>;
@@ -41,24 +41,24 @@ export function ServicesPage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: index * 0.1 }}
-                  className="card-premium group hover:scale-105 transition-all duration-500 p-8"
+                  className="card-premium group hover:scale-[1.02] lg:hover:scale-105 transition-all duration-500 p-6 lg:p-8"
                 >
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 glow-effect">
-                      {IconComponent && <IconComponent className="w-8 h-8 text-white" />}
+                  <div className="flex items-center justify-between mb-6 lg:mb-8">
+                    <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl lg:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 glow-effect">
+                      {IconComponent && <IconComponent className="w-6 h-6 lg:w-8 lg:h-8 text-white" />}
                     </div>
-                    <ArrowRight className="w-6 h-6 text-muted-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all duration-300" />
+                    <ArrowRight className="w-5 h-5 lg:w-6 lg:h-6 text-muted-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all duration-300" />
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-muted-900 mb-4">
+                  <h3 className="text-xl lg:text-2xl font-bold text-muted-900 mb-3 lg:mb-4">
                     {service.title}
                   </h3>
                   
-                  <p className="text-muted-600 mb-8 leading-relaxed text-lg">
+                  <p className="text-muted-600 mb-6 lg:mb-8 leading-relaxed text-base lg:text-lg">
                     {service.shortDesc}
                   </p>
                   
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-2 lg:space-y-3 mb-6 lg:mb-8">
                     {service.features.map((feature, featureIndex) => (
                       <motion.div 
                         key={featureIndex} 
@@ -67,15 +67,15 @@ export function ServicesPage() {
                         transition={{ duration: 0.5, delay: (index * 0.1) + (featureIndex * 0.05) }}
                         className="flex items-center space-x-3"
                       >
-                        <CheckCircle className="w-5 h-5 text-success-500 flex-shrink-0" />
-                        <span className="text-muted-700 font-medium">{feature}</span>
+                        <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5 text-success-500 flex-shrink-0" />
+                        <span className="text-muted-700 font-medium text-sm lg:text-base">{feature}</span>
                       </motion.div>
                     ))}
                   </div>
                   
                   <Link
                     to="/contact"
-                    className="btn-primary w-full text-center group"
+                    className="btn-primary w-full text-center group min-h-[44px] flex items-center justify-center"
                   >
                     Get Started
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />

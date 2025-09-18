@@ -17,6 +17,7 @@
     "@headlessui/react": "^2.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/forms": "^0.5.10",
+    "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
@@ -27,6 +28,8 @@
     "react-hook-form": "^7.62.0",
     "react-router-dom": "^7.9.1",
     "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -38,16 +41,13 @@
     "@types/prop-types": "^15.7.15",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.33.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "jsdom": "^27.0.0",
-    "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2",
     "vitest": "^3.2.4"
   }
 }

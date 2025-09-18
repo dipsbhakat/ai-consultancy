@@ -36,7 +36,7 @@ export function Header() {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
+        handleMobileMenuToggle(false);
       }
     };
 
@@ -45,6 +45,12 @@ export function Header() {
       return () => document.removeEventListener('keydown', handleEscape);
     }
   }, [mobileMenuOpen]);
+
+  // Simple focus management without aggressive trapping
+  const handleMobileMenuToggle = (open: boolean) => {
+    setMobileMenuOpen(open);
+    // Let browser handle focus naturally, no manual intervention
+  };
 
   return (
     <header className="bg-white/97 backdrop-blur-md sticky top-0 z-50 border-b border-muted-200/60 shadow-elegant">
@@ -64,7 +70,7 @@ export function Header() {
           <button
             type="button"
             className="-m-2.5 inline-flex items-center justify-center rounded-xl p-3 text-muted-700 hover:bg-muted-100 transition-colors duration-200 lg:!hidden min-h-[44px] min-w-[44px]"
-            onClick={() => setMobileMenuOpen(true)}
+            onClick={() => handleMobileMenuToggle(true)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu"
             aria-label="Open navigation menu"
@@ -123,7 +129,7 @@ export function Header() {
           >
             <div 
               className="fixed inset-0 bg-muted-900/80 backdrop-blur-sm" 
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => handleMobileMenuToggle(false)}
               aria-hidden="true"
             />
             <motion.div
@@ -134,7 +140,7 @@ export function Header() {
               className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-muted-900/10 shadow-elegant-lg"
             >
               <div className="flex items-center justify-between">
-                <Link to="/" className="-m-1.5 p-1.5 flex items-center space-x-3" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/" className="-m-1.5 p-1.5 flex items-center space-x-3" onClick={() => handleMobileMenuToggle(false)}>
                   <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-accent-500 rounded-xl flex items-center justify-center">
                     <Brain className="w-6 h-6 text-white" />
                   </div>
@@ -145,7 +151,7 @@ export function Header() {
                 <button
                   type="button"
                   className="-m-2.5 rounded-xl p-3 text-muted-700 hover:bg-muted-100 transition-colors duration-200 min-h-[44px] min-w-[44px]"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => handleMobileMenuToggle(false)}
                   aria-label="Close navigation menu"
                 >
                   <X className="h-6 w-6" aria-hidden="true" />
@@ -163,7 +169,7 @@ export function Header() {
                             ? 'bg-gradient-to-r from-primary-50 to-accent-50 text-primary-700 border-l-4 border-primary-500'
                             : 'text-muted-700 hover:bg-muted-50 hover:text-primary-600'
                         }`}
-                        onClick={() => setMobileMenuOpen(false)}
+                        onClick={() => handleMobileMenuToggle(false)}
                       >
                         {item.name}
                       </Link>
@@ -173,7 +179,7 @@ export function Header() {
                     <Link
                       to="/contact"
                       className="btn-cta w-full text-center py-4"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => handleMobileMenuToggle(false)}
                     >
                       Get Started
                     </Link>

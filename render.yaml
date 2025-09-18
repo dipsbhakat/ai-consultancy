@@ -2,7 +2,7 @@ services:
   - type: web
     name: bengalmindai-consultancy
     env: static
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: ./build.sh
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
@@ -11,3 +11,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 18
+      - key: NPM_CONFIG_PRODUCTION
+        value: false

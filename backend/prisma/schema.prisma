@@ -74,3 +74,74 @@ model Attachment {
 
   @@index([projectId])
 }
+
+model Lead {
+  id                 String    @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String
+  company            String
+  phone              String?
+  projectDescription String
+  budget             String?   // under-50k, 50k-100k, etc.
+  timeline           String?   // asap, 1-3-months, etc.
+  status             LeadStatus @default(NEW)
+  source             String    @default("website-contact-form")
+  aiSummary          String?   // AI-generated lead summary
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL
+  CLOSED_WON
+  CLOSED_LOST
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  category    ServiceCategory
+  featured    Boolean  @default(false)
+  outcomes    String[] // Array of outcome strings
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([featured])
+  @@index([order])
+}
+
+enum ServiceCategory {
+  AUTOMATION
+  ANALYTICS
+  NLP
+  COMPUTER_VISION
+  CONSULTING
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  quote     String
+  author    String
+  role      String
+  company   String
+  avatar    String?  // URL to avatar image
+  featured  Boolean  @default(false)
+  rating    Int      @default(5) // 1-5 stars
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([order])
+}

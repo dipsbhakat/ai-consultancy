@@ -1,0 +1,278 @@
+openapi: 3.0.3
+info:
+  title: AI Consultancy API
+  description: Enterprise AI consulting platform API
+  version: 1.0.0
+  contact:
+    name: AI Consultancy
+    email: api@aiconsultancy.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.aiconsultancy.com
+    description: Production server
+
+paths:
+  /api/contact:
+    post:
+      summary: Submit contact form
+      description: Submit a contact form for lead generation
+      tags:
+        - Leads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactFormRequest'
+      responses:
+        '200':
+          description: Contact form submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactFormResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+
+  /api/services:
+    get:
+      summary: Get services list
+      description: Retrieve all available AI consulting services
+      tags:
+        - Services
+      responses:
+        '200':
+          description: Services retrieved successfully
+          headers:
+            Cache-Control:
+              description: Caching directive
+              schema:
+                type: string
+                example: "public, s-maxage=300, stale-while-revalidate=600"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+
+  /api/testimonials:
+    get:
+      summary: Get testimonials
+      description: Retrieve client testimonials
+      tags:
+        - Testimonials
+      parameters:
+        - name: featured
+          in: query
+          description: Filter featured testimonials
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          description: Number of testimonials to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Testimonials retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Testimonial'
+
+  /api/leads/{id}:
+    get:
+      summary: Get lead details
+      description: Retrieve lead information (authenticated)
+      tags:
+        - Leads
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lead details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ContactFormRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - company
+        - projectDescription
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: "John"
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@company.com"
+        company:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: "Tech Corp Inc"
+        phone:
+          type: string
+          pattern: "^[\\+]?[1-9][\\d\\s\\-\\(\\)]{7,15}$"
+          example: "+1-555-123-4567"
+        projectDescription:
+          type: string
+          minLength: 10
+          maxLength: 2000
+          example: "We need ML models for customer churn prediction"
+        budget:
+          type: string
+          enum: ["under-50k", "50k-100k", "100k-250k", "250k-500k", "500k+"]
+        timeline:
+          type: string
+          enum: ["asap", "1-3-months", "3-6-months", "6-12-months", "planning"]
+        honeypot:
+          type: string
+          description: "Anti-spam field, should be empty"
+          maxLength: 0
+
+    ContactFormResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Thank you! We'll be in touch within 24 hours."
+        leadId:
+          type: string
+          example: "lead_abc123"
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "ml-models"
+        title:
+          type: string
+          example: "Machine Learning Models"
+        description:
+          type: string
+          example: "Custom ML models for prediction, classification, and automation"
+        icon:
+          type: string
+          example: "🤖"
+        category:
+          type: string
+          enum: ["automation", "analytics", "nlp", "computer-vision", "consulting"]
+        featured:
+          type: boolean
+        outcomes:
+          type: array
+          items:
+            type: string
+          example: ["40% efficiency increase", "95% accuracy improvement"]
+
+    Testimonial:
+      type: object
+      properties:
+        id:
+          type: string
+        quote:
+          type: string
+          example: "The AI solution increased our efficiency by 40%"
+        author:
+          type: string
+          example: "Sarah Johnson"
+        role:
+          type: string
+          example: "CTO"
+        company:
+          type: string
+          example: "TechCorp"
+        avatar:
+          type: string
+          format: uri
+          example: "https://cdn.example.com/avatars/sarah.jpg"
+        featured:
+          type: boolean
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    Lead:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        projectDescription:
+          type: string
+        status:
+          type: string
+          enum: ["new", "contacted", "qualified", "proposal", "closed-won", "closed-lost"]
+        source:
+          type: string
+          example: "website-contact-form"
+        createdAt:
+          type: string
+          format: date-time
+        aiSummary:
+          type: string
+          description: "AI-generated lead summary"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

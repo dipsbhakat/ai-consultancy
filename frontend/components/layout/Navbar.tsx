@@ -4,53 +4,54 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Projects', href: '/projects' },
-  { name: 'Settings', href: '/settings' },
+  { name: 'Services', href: '#services' },
+  { name: 'About', href: '/about' },
+  { name: 'Contact', href: '#contact' },
 ];
 
-export function Navbar() {
+export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white shadow">
+    <nav className="fixed top-0 w-full z-50 bg-white shadow-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 justify-between">
-          <div className="flex">
-            <Link
-              href="/"
-              className="flex flex-shrink-0 items-center"
-            >
-              <span className="text-2xl font-bold text-blue-600">AI Consultancy</span>
+        <div className="flex h-16 justify-between items-center">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">AI</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">
+                AI Consultancy
+              </span>
             </Link>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navigation.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium ${
-                      isActive
-                        ? 'border-blue-500 text-gray-900'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <div className="relative ml-3">
-              <Link
-                href="/auth/login"
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+          
+          <div className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
               >
-                Sign in
-              </Link>
-            </div>
+                {item.name}
+              </a>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/auth/login"
+              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/auth/login"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </div>

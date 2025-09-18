@@ -1,8 +1,9 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database
   postgres:
-    image: ankane/pgvector:latest
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -11,59 +12,60 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-
+  # Backend API
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: ./backend
+      dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - RENDER_DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
-      - RENDER_REDIS_URL=redis://redis:6379
-      - REDIS_URL=redis://redis:6379
-      - RENDER_JWT_SECRET=${JWT_SECRET:-local-development-secret}
-      - JWT_SECRET=${JWT_SECRET:-local-development-secret}
-      - RENDER_OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=dev-jwt-secret-key-change-in-production
+      - JWT_REFRESH_SECRET=dev-refresh-secret-key-change-in-production
+      - JWT_EXPIRES_IN=24h
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - PORT=4000
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:5173
+      - RATE_LIMIT_WINDOW_SEC=900
+      - RATE_LIMIT_MAX=100
+      - CONTACT_RATE_LIMIT_MAX=5
+      - CONTACT_RATE_LIMIT_WINDOW_SEC=60
     ports:
-      - "3000:3000"
+      - "4000:4000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend.worker
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_consultancy
-      - REDIS_URL=redis://redis:6379
-      - RENDER_JWT_SECRET=${JWT_SECRET:-local-development-secret}
-      - RENDER_OPENAI_API_KEY=${OPENAI_API_KEY}
-    depends_on:
-      - postgres
-      - redis
-
+  # Frontend
   frontend:
     build:
       context: .
       dockerfile: Dockerfile.frontend
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=local-development-secret
-      - NEXTAUTH_URL=http://localhost:3001
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api/v1
     ports:
-      - "3001:3000"
+      - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

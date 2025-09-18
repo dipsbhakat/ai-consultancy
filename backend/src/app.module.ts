@@ -1,29 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { ProjectsModule } from './projects/projects.module';
-import { VectorStoreModule } from './vectorstore/vectorstore.module';
-import { WorkersModule } from './workers/workers.module';
-import { BullModule } from '@nestjs/bull';
-import { PrismaModule } from './prisma/prisma.module';
-import { ConfigModule } from './config/config.module';
-import { ConfigService } from './config/config.service';
-import { HealthModule } from './health/health.module';
+import { ConfigModule } from '@nestjs/config';
+import { ContactModule } from './modules/contact/contact.module';
+import { HealthController } from './modules/health/health.controller';
 
 @Module({
   imports: [
-    ConfigModule,
-    BullModule.forRootAsync({
-      useFactory: (config: ConfigService) => ({
-        redis: config.redisUrl,
-      }),
-      inject: [ConfigService],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
-    PrismaModule,
-    AuthModule,
-    ProjectsModule,
-    VectorStoreModule,
-    WorkersModule,
-    HealthModule,
+    ContactModule,
   ],
+  controllers: [HealthController],
+  providers: [],
 })
 export class AppModule {}

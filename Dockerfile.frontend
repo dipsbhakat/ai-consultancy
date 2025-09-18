@@ -10,8 +10,7 @@ RUN npm install
 # Copy source
 COPY frontend/ .
 
-# Build
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build React app with Vite
 RUN npm run build
 
 # Production image
@@ -19,18 +18,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy built assets
-COPY --from=builder /app/.next ./.next
+# Copy built assets and server
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/server.js ./server.js
 COPY frontend/package*.json ./
 
 # Set production environment
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
 # Expose port
 EXPOSE 3000
 
-# Start application
+# Start Express server
 CMD ["npm", "start"]

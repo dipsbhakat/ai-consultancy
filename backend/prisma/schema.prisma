@@ -3,145 +3,81 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  extensions = [pgvector(map: "vector")]
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  password      String?   // Hashed password for email/password auth
-  image         String?   // Avatar URL
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  projects      Project[]
-  role          Role      @default(USER)
-}
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  consent   Boolean  @default(false)
+  status    Status   @default(NEW)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-enum Role {
-  ADMIN
-  USER
-}
-
-model Project {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  notes       Note[]
-  attachments Attachment[]
-  status      ProjectStatus @default(ACTIVE)
-
-  @@index([userId])
-}
-
-enum ProjectStatus {
-  ACTIVE
-  ARCHIVED
-  DELETED
-}
-
-model Note {
-  id          String    @id @default(cuid())
-  content     String
-  embedding   Unsupported("vector(1536)")?  // OpenAI embedding dimension
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id])
-
-  @@index([projectId])
-}
-
-model Attachment {
-  id          String    @id @default(cuid())
-  filename    String
-  key         String    // S3 key
-  size        Int
-  mimeType    String
-  createdAt   DateTime  @default(now())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id])
-
-  @@index([projectId])
-}
-
-model Lead {
-  id                 String    @id @default(cuid())
-  firstName          String
-  lastName           String
-  email              String
-  company            String
-  phone              String?
-  projectDescription String
-  budget             String?   // under-50k, 50k-100k, etc.
-  timeline           String?   // asap, 1-3-months, etc.
-  status             LeadStatus @default(NEW)
-  source             String    @default("website-contact-form")
-  aiSummary          String?   // AI-generated lead summary
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-
-  @@index([email])
-  @@index([status])
-  @@index([createdAt])
-}
-
-enum LeadStatus {
-  NEW
-  CONTACTED
-  QUALIFIED
-  PROPOSAL
-  CLOSED_WON
-  CLOSED_LOST
-}
-
-model Service {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  icon        String
-  category    ServiceCategory
-  featured    Boolean  @default(false)
-  outcomes    String[] // Array of outcome strings
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([featured])
-  @@index([order])
-}
-
-enum ServiceCategory {
-  AUTOMATION
-  ANALYTICS
-  NLP
-  COMPUTER_VISION
-  CONSULTING
+  @@map("contact_submissions")
 }
 
 model Testimonial {
   id        String   @id @default(cuid())
-  quote     String
-  author    String
+  name      String
   role      String
   company   String
-  avatar    String?  // URL to avatar image
-  featured  Boolean  @default(false)
-  rating    Int      @default(5) // 1-5 stars
-  order     Int      @default(0)
+  photoUrl  String?
+  quote     String
+  rating    Int      @default(5)
+  published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([featured])
-  @@index([order])
+  @@map("testimonials")
+}
+
+model Service {
+  id        String   @id @default(cuid())
+  title     String   @unique
+  slug      String   @unique
+  shortDesc String
+  features  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("services")
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  type      EventType
+  path      String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@map("events")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
+enum Status {
+  NEW
+  REVIEWED
+}
+
+enum EventType {
+  PAGEVIEW
+  CTA_CLICK
 }

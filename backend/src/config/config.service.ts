@@ -9,7 +9,7 @@ export class ConfigService {
 
   // Redis
   get redisUrl(): string {
-    return this.getEnvVar('RENDER_REDIS_URL', 'REDIS_URL');
+    return this.getEnvVar('RENDER_REDIS_URL', 'REDIS_URL', false) || 'redis://localhost:6379';
   }
 
   // JWT
@@ -46,9 +46,9 @@ export class ConfigService {
     return this.getEnvVar('RENDER_API_URL', 'NEXT_PUBLIC_API_URL');
   }
 
-  private getEnvVar(renderKey: string, fallbackKey: string): string {
+  private getEnvVar(renderKey: string, fallbackKey: string, required: boolean = true): string | undefined {
     const value = process.env[renderKey] || process.env[fallbackKey];
-    if (!value) {
+    if (!value && required) {
       throw new Error(`Environment variable not found: ${renderKey} or ${fallbackKey}`);
     }
     return value;

@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service';
+import { RedisService } from '../../database/redis.service';
 
 export interface ContactSubmission {
   name: string;
@@ -32,6 +34,12 @@ export interface Service {
 
 @Injectable()
 export class ContactService {
+  private readonly logger = new Logger(ContactService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private redis: RedisService
+  ) {}
   private readonly mockTestimonials: Testimonial[] = [
     {
       id: '1',
@@ -122,7 +130,47 @@ export class ContactService {
   private readonly contactSubmissions: ContactSubmission[] = [];
 
   async getTestimonials(): Promise<Testimonial[]> {
-    return this.mockTestimonials;
+    const cacheKey = 'testimonials:all';
+    
+    try {
+      // Try to get from cache first
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        this.logger.debug('Returning testimonials from cache');
+        return JSON.parse(cached);
+      }
+
+      // Try to get from database
+      const testimonials = await this.prisma.testimonial.findMany({
+        where: { published: true },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (testimonials.length > 0) {
+        const mapped = testimonials.map(t => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          company: t.company,
+          rating: t.rating,
+          message: t.quote,
+          avatar: t.photoUrl || undefined,
+        }));
+
+        // Cache for 1 hour
+        await this.redis.set(cacheKey, JSON.stringify(mapped), 3600);
+        this.logger.debug('Returning testimonials from database');
+        return mapped;
+      }
+    } catch (error) {
+      this.logger.warn('Database/cache error, falling back to mock data', error);
+    }
+
+    // Fallback to mock data
+    const mockTestimonials = this.mockTestimonials;
+    await this.redis.set(cacheKey, JSON.stringify(mockTestimonials), 300); // Cache for 5 minutes
+    this.logger.debug('Returning mock testimonials');
+    return mockTestimonials;
   }
 
   async getServices(): Promise<Service[]> {
@@ -139,12 +187,23 @@ export class ContactService {
       submittedAt: new Date()
     };
     
-    this.contactSubmissions.push(submission);
-    
-    // In a real application, you would:
-    // 1. Save to database
-    // 2. Send notification emails
-    // 3. Integrate with CRM systems
+    try {
+      // Save to database
+      await this.prisma.contactSubmission.create({
+        data: {
+          name: contactData.name,
+          email: contactData.email,
+          message: contactData.message,
+          consent: true,
+        },
+      });
+      
+      this.logger.log(`Contact submission saved for ${contactData.email}`);
+    } catch (error) {
+      this.logger.error('Failed to save contact submission to database', error);
+      // Continue with in-memory storage as fallback
+      this.contactSubmissions.push(submission);
+    }
     
     return submission;
   }

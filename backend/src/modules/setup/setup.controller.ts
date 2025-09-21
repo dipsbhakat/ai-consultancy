@@ -46,11 +46,21 @@ export class SetupController {
 
       if (existingAdmin) {
         this.logger.log('Admin user already exists');
+        
+        // Test password verification for debugging
+        const testPassword = 'Admin123!';
+        const isPasswordValid = await bcrypt.compare(testPassword, existingAdmin.passwordHash);
+        
         return {
           message: 'Admin user already exists',
           email: existingAdmin.email,
           note: 'Use admin@aiconsultancy.com with password Admin123!',
-          loginUrl: '/admin/login'
+          loginUrl: '/admin/login',
+          debug: {
+            passwordHashExists: !!existingAdmin.passwordHash,
+            passwordHashLength: existingAdmin.passwordHash.length,
+            testPasswordValid: isPasswordValid
+          }
         };
       }
 
@@ -86,6 +96,62 @@ export class SetupController {
       this.logger.error('Failed to initialize admin:', error);
       return {
         error: 'Failed to initialize admin',
+        details: error.message,
+        stack: error.stack
+      };
+    }
+  }
+
+  @Post('reset-admin')
+  @HttpCode(HttpStatus.OK)
+  async resetAdmin() {
+    try {
+      // Delete existing admin
+      await this.prisma.adminUser.deleteMany({
+        where: { email: 'admin@aiconsultancy.com' }
+      });
+      
+      this.logger.log('Deleted existing admin user');
+
+      // Create fresh admin
+      const adminEmail = 'admin@aiconsultancy.com';
+      const adminPassword = 'Admin123!';
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
+
+      const admin = await this.prisma.adminUser.create({
+        data: {
+          email: adminEmail,
+          passwordHash,
+          firstName: 'Super',
+          lastName: 'Admin',
+          role: 'SUPERADMIN',
+          isActive: true,
+          loginAttempts: 0,
+        },
+      });
+
+      this.logger.log(`Created fresh admin: ${admin.email}`);
+
+      // Verify the password immediately
+      const isPasswordValid = await bcrypt.compare(adminPassword, passwordHash);
+
+      return {
+        message: 'Admin user reset successfully',
+        email: admin.email,
+        password: adminPassword,
+        verification: {
+          passwordValid: isPasswordValid,
+          hashLength: passwordHash.length
+        },
+        warning: 'Please change the default password after first login!',
+        loginUrl: '/admin/login'
+      };
+
+    } catch (error) {
+      this.logger.error('Failed to reset admin:', error);
+      return {
+        error: 'Failed to reset admin',
         details: error.message,
         stack: error.stack
       };

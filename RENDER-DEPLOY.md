@@ -5,10 +5,16 @@
 ### Service Configuration
 ```
 Service Name: ai-consultancy-backend
-Environment: Node
+Environment: Docker
 Root Directory: backend
-Build Command: npm install && npm run build
-Start Command: npm run start:prod
+Dockerfile Path: backend/Dockerfile
+```
+
+### Docker Build Configuration
+```
+Docker Build Context: backend
+Docker Command: (auto-detected from Dockerfile)
+Port: 10000 (exposed in Dockerfile)
 ```
 
 ### Environment Variables
@@ -50,12 +56,23 @@ VITE_LOG_LEVEL=error
 
 ## Deployment Steps
 
-1. **Push to GitHub**: Ensure your code is in a GitHub repository
-2. **Create Backend Service**: Web Service with Node.js environment
+1. **Push to GitHub**: Ensure your code is in a GitHub repository ✅
+2. **Create Backend Service**: Docker Web Service 
+   - Select "Docker" as environment
+   - Set Root Directory to `backend`
+   - Dockerfile will be auto-detected
 3. **Create Frontend Service**: Static Site
 4. **Update CORS**: After getting frontend URL, update backend CORS_ORIGIN
 5. **Update API URL**: After getting backend URL, update frontend VITE_API_BASE_URL
 6. **Test Deployment**: Visit your frontend URL and test functionality
+
+## Docker Benefits
+
+- **Multi-stage builds**: Optimized image size and security
+- **Health checks**: Built-in health monitoring at container level
+- **Security**: Non-root user execution with proper permissions
+- **Persistence**: SQLite database persists across deployments
+- **Performance**: Optimized Node.js runtime with Alpine Linux
 
 ## Notes
 

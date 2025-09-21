@@ -20,6 +20,38 @@ export class SetupController {
     private readonly prisma: PrismaService,
   ) {}
 
+  @Post('unlock-admin')
+  @HttpCode(HttpStatus.OK)
+  async unlockAdmin(@Body() body: { email?: string } = {}) {
+    try {
+      const adminEmail = body.email || 'admin@aiconsultancy.com';
+
+      // Unlock the admin account by clearing lockout fields
+      const admin = await this.prisma.adminUser.update({
+        where: { email: adminEmail },
+        data: {
+          loginAttempts: 0,
+          lockedUntil: null,
+        },
+      });
+
+      this.logger.log(`Admin account unlocked: ${admin.email}`);
+
+      return {
+        message: 'Admin account unlocked successfully',
+        email: admin.email,
+        loginUrl: '/admin/login'
+      };
+
+    } catch (error) {
+      this.logger.error('Failed to unlock admin:', error);
+      return {
+        error: 'Failed to unlock admin account',
+        details: error.message
+      };
+    }
+  }
+
   @Post('init-admin')
   @HttpCode(HttpStatus.OK)
   async initializeAdmin(@Body() body: InitAdminDto = {}) {

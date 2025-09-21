@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AdminLayout } from '../components/AdminLayout';
 import { DashboardStats } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
@@ -162,24 +163,24 @@ export const AdminDashboardPage = () => {
           <div className="bg-white shadow rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <a
-                href="/admin/contacts?status=NEW"
+              <Link
+                to="/admin/contacts?status=NEW"
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md border border-gray-200"
               >
                 📧 View New Contacts
-              </a>
-              <a
-                href="/admin/contacts?priority=URGENT"
+              </Link>
+              <Link
+                to="/admin/contacts?priority=URGENT"
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md border border-gray-200"
               >
                 🚨 Review Urgent Items
-              </a>
-              <a
-                href="/admin/contacts"
+              </Link>
+              <Link
+                to="/admin/contacts"
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md border border-gray-200"
               >
                 👥 Manage All Contacts
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SetupModule } from './modules/setup/setup.module';
+import { DebugModule } from './modules/debug/debug.module';
 import { HealthController } from './modules/health/health.controller';
 import { DatabaseModule } from './database/database.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
@@ -28,6 +29,7 @@ import { MonitoringModule } from './monitoring/monitoring.module';
     AuthModule,
     AdminModule,
     SetupModule,
+    DebugModule,
   ],
   controllers: [HealthController],
   providers: [],

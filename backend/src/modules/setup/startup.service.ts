@@ -24,29 +24,20 @@ export class StartupService implements OnModuleInit {
       const adminPassword = 'Admin123!';
       
       // Check if admin exists
-      let admin = await this.prisma.adminUser.findFirst({
+      const admin = await this.prisma.adminUser.findFirst({
         where: { email: adminEmail }
       });
 
-      const saltRounds = 12;
-      const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
-
       if (!admin) {
-        // Create admin if not exists
-        admin = await this.prisma.adminUser.create({
-          data: {
-            email: adminEmail,
-            passwordHash,
-            firstName: 'Super',
-            lastName: 'Admin',
-            role: 'SUPERADMIN',
-            isActive: true,
-            loginAttempts: 0,
-          },
-        });
-        this.logger.log(`✅ Created admin account: ${admin.email}`);
-      } else {
-        // Always update password to ensure consistency
+        this.logger.log('⚠️ Admin account not found - it should be created by seed process');
+        return;
+      }
+
+      // Only reset if account is locked
+      if (admin.lockedUntil && admin.lockedUntil > new Date()) {
+        const saltRounds = 12;
+        const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
+        
         await this.prisma.adminUser.update({
           where: { id: admin.id },
           data: {
@@ -56,19 +47,13 @@ export class StartupService implements OnModuleInit {
             lockedUntil: null,
           },
         });
-        this.logger.log(`✅ Verified and updated admin account: ${admin.email}`);
-      }
-
-      // Verify password works
-      const testPassword = await bcrypt.compare(adminPassword, passwordHash);
-      if (testPassword) {
-        this.logger.log('✅ Admin password verification successful');
+        this.logger.log(`✅ Unlocked and reset admin account: ${admin.email}`);
       } else {
-        this.logger.error('❌ Admin password verification failed');
+        this.logger.log(`✅ Admin account verified: ${admin.email}`);
       }
 
     } catch (error) {
-      this.logger.error('❌ Failed to ensure admin account:', error);
+      this.logger.error('❌ Failed to verify admin account:', error);
     }
   }
 }

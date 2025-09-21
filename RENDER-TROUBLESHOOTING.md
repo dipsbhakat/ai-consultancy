@@ -26,9 +26,40 @@ Dockerfile Path: backend/Dockerfile
 ### 2. "Dockerfile cannot be empty" when root directory is set to backend
 
 **Problem**: Render cannot find or read the Dockerfile
-**Cause**: Path resolution issue
+**Cause**: Path resolution issue with Render's Docker service
 
-**Solution**: Try both configurations above. Render's Docker path resolution can be inconsistent.
+**SOLUTION FOR THIS SPECIFIC ERROR**:
+
+When you get "Dockerfile cannot be empty" with this configuration:
+```
+Environment: Docker
+Root Directory: (empty)
+Dockerfile Path: backend/Dockerfile
+```
+
+**Try this instead**:
+```
+Environment: Docker
+Root Directory: (empty)
+Dockerfile Path: Dockerfile
+```
+
+This uses the root-level Dockerfile which is specifically designed for this scenario.
+
+**Alternative**: If the above doesn't work, try:
+```
+Environment: Docker
+Root Directory: backend
+Dockerfile Path: ./Dockerfile
+```
+
+**Last Resort**: Deploy as Node.js service instead of Docker:
+```
+Environment: Node.js
+Root Directory: backend
+Build Command: npm ci && npm run build
+Start Command: npm run start:prod
+```
 
 ### 3. Build Context Issues
 

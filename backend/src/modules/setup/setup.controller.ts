@@ -159,4 +159,49 @@ export class SetupController {
       };
     }
   }
+
+  @Post('test-admin-login')
+  @HttpCode(HttpStatus.OK)
+  async testAdminLogin(@Body() body: { email?: string; password?: string } = {}) {
+    try {
+      const adminEmail = body.email || 'admin@aiconsultancy.com';
+      const adminPassword = body.password || 'Admin123!';
+
+      // Find admin
+      const admin = await this.prisma.adminUser.findFirst({
+        where: { email: adminEmail }
+      });
+
+      if (!admin) {
+        return {
+          success: false,
+          message: 'Admin not found',
+          email: adminEmail
+        };
+      }
+
+      // Test password
+      const isPasswordValid = await bcrypt.compare(adminPassword, admin.passwordHash);
+      
+      return {
+        success: isPasswordValid,
+        message: isPasswordValid ? 'Password is valid' : 'Password is invalid',
+        email: admin.email,
+        adminStatus: {
+          isActive: admin.isActive,
+          loginAttempts: admin.loginAttempts,
+          lockedUntil: admin.lockedUntil,
+          lastLoginAt: admin.lastLoginAt
+        }
+      };
+
+    } catch (error) {
+      this.logger.error('Failed to test admin login:', error);
+      return {
+        success: false,
+        error: 'Failed to test login',
+        details: error.message
+      };
+    }
+  }
 }

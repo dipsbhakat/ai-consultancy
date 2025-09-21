@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoginRequest } from '../types';
+import { ApiDebug } from '../../components/ApiDebug';
 
 export const AdminLoginPage: React.FC = () => {
   const [formData, setFormData] = useState<LoginRequest>({ email: '', password: '' });
@@ -39,6 +40,7 @@ export const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ApiDebug />
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
@@ -131,7 +133,7 @@ export const AdminLoginPage: React.FC = () => {
 
           <div className="text-center">
             <p className="text-xs text-gray-500">
-              Default credentials: admin@ai-consultancy.com / admin123456
+              Default credentials: admin@aiconsultancy.com / Admin123!
             </p>
           </div>
         </form>

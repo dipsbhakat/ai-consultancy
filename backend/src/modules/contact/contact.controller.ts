@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ContactService, Testimonial, Service, ContactSubmission } from './contact.service';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
 
 export class ContactSubmissionDto {
   @IsNotEmpty()
@@ -22,10 +22,29 @@ export class ContactSubmissionDto {
   @IsNotEmpty()
   email: string;
 
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @IsOptional()
+  @IsString()
+  projectType?: string;
+
+  @IsOptional()
+  @IsString()
+  budget?: string;
+
   @IsNotEmpty()
   @IsString()
   @MinLength(10)
   message: string;
+
+  @IsBoolean()
+  consent: boolean;
 }
 
 @ApiTags('api')

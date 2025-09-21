@@ -1,10 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
-import { testimonials } from '../data';
+import { apiClient, ENDPOINTS } from '../lib/api';
+
+// Backend testimonial interface
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  rating: number;
+  message: string;
+  avatar?: string;
+}
 
 export function TestimonialsPage() {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        console.log('Fetching testimonials from API');
+        const data = await apiClient.get<Testimonial[]>(ENDPOINTS.TESTIMONIALS);
+        console.log('Testimonials fetched successfully:', data);
+        setTestimonials(data);
+      } catch (err) {
+        console.error('Failed to fetch testimonials:', err);
+        setError('Failed to load testimonials. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   const nextTestimonial = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
@@ -17,6 +49,42 @@ export function TestimonialsPage() {
   const goToTestimonial = (index: number) => {
     setCurrentIndex(index);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-muted-900 mb-4">Oops! Something went wrong</h2>
+          <p className="text-muted-600 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="btn-primary"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (testimonials.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-muted-900 mb-4">No testimonials available</h2>
+          <p className="text-muted-600">Check back later for client testimonials.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white py-24 sm:py-32">
@@ -50,7 +118,7 @@ export function TestimonialsPage() {
                 <Quote className="mx-auto h-12 w-12 text-primary-600 mb-6" />
                 
                 <blockquote className="text-xl md:text-2xl font-medium text-muted-900 mb-8 leading-relaxed">
-                  "{testimonials[currentIndex].quote}"
+                  "{testimonials[currentIndex].message}"
                 </blockquote>
                 
                 <div className="flex justify-center mb-6">
@@ -153,9 +221,9 @@ export function TestimonialsPage() {
                 </div>
                 
                 <blockquote className="text-muted-700 mb-4 leading-relaxed">
-                  "{testimonial.quote.length > 150 
-                    ? testimonial.quote.substring(0, 150) + '...' 
-                    : testimonial.quote}"
+                  "{testimonial.message.length > 150 
+                    ? testimonial.message.substring(0, 150) + '...' 
+                    : testimonial.message}"
                 </blockquote>
                 
                 <div className="flex items-center space-x-3">

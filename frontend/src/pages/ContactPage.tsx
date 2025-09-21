@@ -36,7 +36,7 @@ export function ContactPage() {
     
     try {
       // Make real API call to backend
-      const response = await fetch('/api/v1/contact/submit', {
+      const response = await fetch('http://localhost:3001/api/v1/contact/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

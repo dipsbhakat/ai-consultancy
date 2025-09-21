@@ -3,23 +3,51 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "frontend"
+    "frontend",
+    "backend"
   ],
   "scripts": {
-    "install:all": "npm install && npm run install:frontend",
+    "install:all": "npm install && npm run install:frontend && npm run install:backend",
     "install:frontend": "cd frontend && npm install",
-    "build": "npm run build:frontend",
+    "install:backend": "cd backend && npm install",
+    "build": "npm run build:backend && npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
-    "start": "npm run start:frontend",
+    "build:backend": "cd backend && npm run build",
+    "start": "npm run start:prod",
+    "start:prod": "concurrently \"npm run start:backend:prod\" \"npm run start:frontend:prod\"",
     "start:frontend": "cd frontend && npm start",
-    "dev": "npm run dev:frontend",
+    "start:backend": "cd backend && npm run start:prod",
+    "start:frontend:prod": "cd frontend && npm run preview",
+    "start:backend:prod": "cd backend && npm run start:prod",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "test": "npm run test:frontend",
+    "dev:backend": "cd backend && npm run start:dev",
+    "test": "npm run test:frontend && npm run test:backend",
     "test:frontend": "cd frontend && npm test",
-    "lint": "npm run lint:frontend",
-    "lint:frontend": "cd frontend && npm run lint"
+    "test:backend": "cd backend && npm test",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "typecheck": "npm run typecheck:frontend && npm run typecheck:backend",
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit",
+    "typecheck:backend": "cd backend && npm run typecheck",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed",
+    "docker:build": "docker-compose -f docker-compose.prod.yml build",
+    "docker:up": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.prod.yml down",
+    "docker:logs": "docker-compose -f docker-compose.prod.yml logs -f",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:staging": "./scripts/deploy.sh staging",
+    "deploy:render": "./scripts/render-check.sh",
+    "health:check": "curl -f http://localhost:3001/api/v1/health && curl -f http://localhost/health"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }

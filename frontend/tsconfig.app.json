@@ -25,8 +25,10 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src"],
-  "types": ["@types/react", "@types/react-dom"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/__tests__/**/*", "src/test/**/*"],
+  "types": ["react", "react-dom", "node"]
 }

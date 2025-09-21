@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { RedisService } from '../../database/redis.service';
 
 export interface ContactSubmission {
   name: string;
   email: string;
+  phone?: string;
+  company?: string;
+  projectType?: string;
+  budget?: string;
   message: string;
+  consent: boolean;
   submittedAt: Date;
 }
 
@@ -37,8 +41,7 @@ export class ContactService {
   private readonly logger = new Logger(ContactService.name);
 
   constructor(
-    private prisma: PrismaService,
-    private redis: RedisService
+    private prisma: PrismaService
   ) {}
   private readonly mockTestimonials: Testimonial[] = [
     {
@@ -130,16 +133,7 @@ export class ContactService {
   private readonly contactSubmissions: ContactSubmission[] = [];
 
   async getTestimonials(): Promise<Testimonial[]> {
-    const cacheKey = 'testimonials:all';
-    
     try {
-      // Try to get from cache first
-      const cached = await this.redis.get(cacheKey);
-      if (cached) {
-        this.logger.debug('Returning testimonials from cache');
-        return JSON.parse(cached);
-      }
-
       // Try to get from database
       const testimonials = await this.prisma.testimonial.findMany({
         where: { published: true },
@@ -157,20 +151,16 @@ export class ContactService {
           avatar: t.photoUrl || undefined,
         }));
 
-        // Cache for 1 hour
-        await this.redis.set(cacheKey, JSON.stringify(mapped), 3600);
         this.logger.debug('Returning testimonials from database');
         return mapped;
       }
     } catch (error) {
-      this.logger.warn('Database/cache error, falling back to mock data', error);
+      this.logger.warn('Database error, falling back to mock data', error);
     }
 
     // Fallback to mock data
-    const mockTestimonials = this.mockTestimonials;
-    await this.redis.set(cacheKey, JSON.stringify(mockTestimonials), 300); // Cache for 5 minutes
     this.logger.debug('Returning mock testimonials');
-    return mockTestimonials;
+    return this.mockTestimonials;
   }
 
   async getServices(): Promise<Service[]> {
@@ -193,8 +183,12 @@ export class ContactService {
         data: {
           name: contactData.name,
           email: contactData.email,
+          phone: contactData.phone,
+          company: contactData.company,
+          projectType: contactData.projectType,
+          budget: contactData.budget,
           message: contactData.message,
-          consent: true,
+          consent: contactData.consent,
         },
       });
       
@@ -221,6 +215,8 @@ export class ContactService {
         email: record.email,
         phone: record.phone || undefined,
         company: record.company || undefined,
+        projectType: record.projectType || undefined,
+        budget: record.budget || undefined,
         message: record.message,
         consent: record.consent,
         submittedAt: record.createdAt

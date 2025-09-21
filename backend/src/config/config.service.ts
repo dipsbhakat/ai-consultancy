@@ -7,11 +7,6 @@ export class ConfigService {
     return this.getEnvVar('RENDER_DATABASE_URL', 'DATABASE_URL');
   }
 
-  // Redis
-  get redisUrl(): string {
-    return this.getEnvVar('RENDER_REDIS_URL', 'REDIS_URL', false) || 'redis://localhost:6379';
-  }
-
   // JWT
   get jwtSecret(): string {
     return this.getEnvVar('RENDER_JWT_SECRET', 'JWT_SECRET');

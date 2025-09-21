@@ -7,21 +7,30 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model ContactSubmission {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  company   String?
-  message   String
-  consent   Boolean  @default(false)
-  status    Status   @default(NEW)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  company      String?
+  projectType  String?
+  budget       String?
+  message      String
+  consent      Boolean  @default(false)
+  status       String   @default("NEW") // NEW, IN_REVIEW, RESOLVED, ARCHIVED
+  priority     String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  source       String   @default("WEBSITE") // WEBSITE, EMAIL, REFERRAL, SOCIAL_MEDIA, OTHER
+  tags         String   @default("") // JSON string array
+  internalNotes String?
+  assignedTo   String?  // Reference to AdminUser.id
+  assignedUser AdminUser? @relation("AssignedAdmin", fields: [assignedTo], references: [id])
+  respondedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("contact_submissions")
 }
@@ -35,6 +44,11 @@ model Testimonial {
   quote     String
   rating    Int      @default(5)
   published Boolean  @default(false)
+  publishAt DateTime?
+  createdBy String?
+  updatedBy String?
+  createdByUser AdminUser? @relation("TestimonialCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AdminUser? @relation("TestimonialUpdatedBy", fields: [updatedBy], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -42,43 +56,82 @@ model Testimonial {
 }
 
 model Service {
-  id        String   @id @default(cuid())
-  title     String   @unique
-  slug      String   @unique
-  shortDesc String
-  features  String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  features     String   @default("") // JSON string array
+  price        Float?
+  currency     String   @default("USD")
+  billingCycle String   @default("monthly") // monthly, yearly, one-time
+  popular      Boolean  @default(false)
+  published    Boolean  @default(false)
+  publishAt    DateTime?
+  createdBy    String?
+  updatedBy    String?
+  createdByUser AdminUser? @relation("ServiceCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser AdminUser? @relation("ServiceUpdatedBy", fields: [updatedBy], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("services")
 }
 
 model Event {
   id        String   @id @default(cuid())
-  type      EventType
+  type      String   // PAGEVIEW, CTA_CLICK
   path      String?
-  meta      Json?
+  meta      String?  // JSON string
   createdAt DateTime @default(now())
 
   @@map("events")
 }
 
-model Admin {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+// Admin User Model for Authentication and Authorization
+model AdminUser {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  role          String   @default("VIEWER") // SUPERADMIN, EDITOR, VIEWER
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  loginAttempts Int      @default(0)
+  lockedUntil   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  @@map("admins")
+  // Relations
+  assignedContacts ContactSubmission[] @relation("AssignedAdmin")
+  createdTestimonials Testimonial[] @relation("TestimonialCreatedBy")
+  updatedTestimonials Testimonial[] @relation("TestimonialUpdatedBy")
+  createdServices Service[] @relation("ServiceCreatedBy")
+  updatedServices Service[] @relation("ServiceUpdatedBy")
+  auditLogs AuditLog[]
+
+  @@map("admin_users")
 }
 
-enum Status {
-  NEW
-  REVIEWED
+// Audit Log Model for Tracking All Admin Actions
+model AuditLog {
+  id        String    @id @default(cuid())
+  action    String    // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
+  resource  String    // contact, testimonial, service, admin_user, etc.
+  resourceId String?  // ID of the affected resource
+  oldValues String?   // JSON string of previous state
+  newValues String?   // JSON string of new state
+  ipAddress String?
+  userAgent String?
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@map("audit_logs")
 }
 
-enum EventType {
-  PAGEVIEW
-  CTA_CLICK
-}
+// Note: SQLite doesn't support enums, so we use string constants
+// Values: NEW, IN_REVIEW, RESOLVED, ARCHIVED
+// Values: LOW, MEDIUM, HIGH, URGENT  
+// Values: WEBSITE, EMAIL, REFERRAL, SOCIAL_MEDIA, OTHER
+// Values: SUPERADMIN, EDITOR, VIEWER
+// Values: PAGEVIEW, CTA_CLICK

@@ -1,10 +1,83 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import * as Icons from 'lucide-react';
-import { services } from '../data';
+import { apiClient, ENDPOINTS } from '../lib/api';
+
+// Backend service interface
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  features: string[];
+  pricing: {
+    basic: number;
+    premium: number;
+    enterprise: number;
+  };
+  category: string;
+}
+
+// Icon mapping for categories
+const categoryIcons: Record<string, keyof typeof Icons> = {
+  'Strategy': 'Target',
+  'Development': 'Code',
+  'NLP': 'MessageSquare',
+  'Analytics': 'BarChart3',
+  'Automation': 'Zap',
+  'Consulting': 'Users',
+  'default': 'Cpu',
+};
 
 export function ServicesPage() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        console.log('Fetching services from API');
+        const data = await apiClient.get<Service[]>(ENDPOINTS.SERVICES);
+        console.log('Services fetched successfully:', data);
+        setServices(data);
+      } catch (err) {
+        console.error('Failed to fetch services:', err);
+        setError('Failed to load services. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-muted-900 mb-4">Oops! Something went wrong</h2>
+          <p className="text-muted-600 mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="btn-primary"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white overflow-hidden">
       {/* Hero Section */}
@@ -32,8 +105,9 @@ export function ServicesPage() {
         <div className="container-custom">
           <div className="grid max-w-6xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {services.map((service, index) => {
-              // Dynamically get the icon component
-              const IconComponent = Icons[service.icon as keyof typeof Icons] as React.ComponentType<{ className?: string }>;
+              // Get icon based on category
+              const iconName = categoryIcons[service.category] || categoryIcons.default;
+              const IconComponent = Icons[iconName] as React.ComponentType<{ className?: string }>;
               
               return (
                 <motion.div
@@ -55,7 +129,7 @@ export function ServicesPage() {
                   </h3>
                   
                   <p className="text-muted-600 mb-6 lg:mb-8 leading-relaxed text-base lg:text-lg">
-                    {service.shortDesc}
+                    {service.description}
                   </p>
                   
                   <div className="space-y-2 lg:space-y-3 mb-6 lg:mb-8">
@@ -71,6 +145,14 @@ export function ServicesPage() {
                         <span className="text-muted-700 font-medium text-sm lg:text-base">{feature}</span>
                       </motion.div>
                     ))}
+                  </div>
+
+                  <div className="mb-6 lg:mb-8">
+                    <div className="text-sm text-muted-500 mb-2">Starting from</div>
+                    <div className="text-2xl lg:text-3xl font-bold text-muted-900">
+                      ${service.pricing.basic.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-muted-500">Basic package</div>
                   </div>
                   
                   <Link

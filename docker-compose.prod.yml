@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: ai-consultancy-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: file:./prod.db
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    ports:
+      - "3001:3001"
+    volumes:
+      - backend_data:/app/prisma
+      - backend_uploads:/app/uploads
+      - backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/v1/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ai-consultancy-network
+
+  # Frontend Web Server
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    container_name: ai-consultancy-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ai-consultancy-network
+
+  # Reverse Proxy & SSL (Production)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: ai-consultancy-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - proxy_logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - ai-consultancy-network
+    profiles:
+      - production
+
+  # Database Backup Service
+  db-backup:
+    image: alpine:latest
+    container_name: ai-consultancy-backup
+    restart: unless-stopped
+    environment:
+      BACKUP_SCHEDULE: "0 2 * * *"  # Daily at 2 AM
+    volumes:
+      - backend_data:/data:ro
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    command: ["sh", "-c", "while true; do sleep 86400; /backup.sh; done"]
+    networks:
+      - ai-consultancy-network
+    profiles:
+      - production
+
+  # Monitoring (optional)
+  watchtower:
+    image: containrrr/watchtower
+    container_name: ai-consultancy-watchtower
+    restart: unless-stopped
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_SCHEDULE: "0 4 * * *"  # Check for updates daily at 4 AM
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    profiles:
+      - monitoring
+
+volumes:
+  backend_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_logs:
+    driver: local
+  proxy_logs:
+    driver: local
+
+networks:
+  ai-consultancy-network:
+    driver: bridge

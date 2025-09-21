@@ -11,7 +11,26 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
   },
   server: {
-    port: 3000,
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+        timeout: 30000,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('Proxy error:', err);
+          });
+          proxy.on('proxyReq', (_, req) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
+    },
   },
   build: {
     outDir: 'dist',

@@ -16,10 +16,20 @@ export class SetupController {
   @HttpCode(HttpStatus.OK)
   async initializeAdmin() {
     try {
-      // Always recreate admin for debugging
-      // Delete existing admins first
-      await this.prisma.adminUser.deleteMany({});
-      this.logger.log('Deleted all existing admin users for reset');
+      // Check if admin already exists
+      const existingAdmin = await this.prisma.adminUser.findFirst({
+        where: { email: 'admin@aiconsultancy.com' }
+      });
+
+      if (existingAdmin) {
+        this.logger.log('Admin user already exists');
+        return {
+          message: 'Admin user already exists',
+          email: existingAdmin.email,
+          note: 'Use admin@aiconsultancy.com with password Admin123!',
+          loginUrl: '/admin/login'
+        };
+      }
 
       // Create initial admin
       const adminEmail = 'admin@aiconsultancy.com';
@@ -39,10 +49,10 @@ export class SetupController {
         },
       });
 
-      this.logger.log(`Created fresh admin: ${admin.email}`);
+      this.logger.log(`Created admin: ${admin.email}`);
 
       return {
-        message: 'Fresh admin user created successfully',
+        message: 'Admin user created successfully',
         email: admin.email,
         password: adminPassword,
         warning: 'Please change the default password after first login!',
@@ -51,7 +61,11 @@ export class SetupController {
 
     } catch (error) {
       this.logger.error('Failed to initialize admin:', error);
-      throw error;
+      return {
+        error: 'Failed to initialize admin',
+        details: error.message,
+        stack: error.stack
+      };
     }
   }
 }

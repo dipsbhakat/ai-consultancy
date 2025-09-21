@@ -10,6 +10,9 @@ RUN npm install
 # Copy source including prisma
 COPY backend/ .
 
+# Debug: Show what was copied
+RUN ls -la && ls -la prisma/
+
 # Generate Prisma client
 RUN npx prisma generate
 

@@ -157,4 +157,59 @@ export class SetupController {
       };
     }
   }
+
+  @Post('update-admin-password')
+  @HttpCode(HttpStatus.OK)
+  async updateAdminPassword() {
+    try {
+      const adminEmail = 'admin@aiconsultancy.com';
+      const adminPassword = 'Admin123!';
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
+
+      // Update existing admin password
+      const updatedAdmin = await this.prisma.adminUser.updateMany({
+        where: { email: adminEmail },
+        data: {
+          passwordHash,
+          loginAttempts: 0, // Reset login attempts
+          lockedUntil: null, // Clear any lockouts
+          isActive: true // Ensure active
+        }
+      });
+
+      if (updatedAdmin.count === 0) {
+        return {
+          error: 'Admin user not found',
+          message: 'No admin user exists with the email admin@aiconsultancy.com'
+        };
+      }
+
+      // Verify the password immediately
+      const isPasswordValid = await bcrypt.compare(adminPassword, passwordHash);
+      
+      this.logger.log(`Updated admin password for: ${adminEmail}`);
+
+      return {
+        message: 'Admin password updated successfully',
+        email: adminEmail,
+        password: adminPassword,
+        verification: {
+          passwordValid: isPasswordValid,
+          hashLength: passwordHash.length,
+          usersUpdated: updatedAdmin.count
+        },
+        warning: 'Please change the default password after first login!',
+        loginUrl: '/admin/login'
+      };
+
+    } catch (error) {
+      this.logger.error('Failed to update admin password:', error);
+      return {
+        error: 'Failed to update admin password',
+        details: error.message,
+        stack: error.stack
+      };
+    }
+  }
 }

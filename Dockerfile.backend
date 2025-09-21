@@ -1,8 +1,8 @@
 # Backend Production Dockerfile
-FROM node:18-alpine AS builder
+FROM node:18-alpine3.17 AS builder
 
-# Install OpenSSL 1.1 for Prisma compatibility
-RUN apk add --no-cache openssl1.1-compat
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -23,10 +23,10 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production image
-FROM node:18-alpine
+FROM node:18-alpine3.17
 
-# Install OpenSSL 1.1 for Prisma compatibility and curl for health checks
-RUN apk add --no-cache openssl1.1-compat curl
+# Install OpenSSL and curl for health checks
+RUN apk add --no-cache openssl curl
 
 # Set production environment
 WORKDIR /app

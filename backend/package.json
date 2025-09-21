@@ -4,6 +4,7 @@
   "description": "Production-ready backend for AI Consultancy platform",
   "main": "dist/main.js",
   "scripts": {
+    "prebuild": "npx prisma generate",
     "build": "npx nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npx nest start",
@@ -19,7 +20,7 @@
     "db:generate": "npx prisma generate",
     "db:migrate": "npx prisma migrate deploy",
     "db:seed": "npx prisma db seed",
-    "postbuild": "npx prisma generate",
+    "postinstall": "npx prisma generate",
     "render:build": "npm install && npm run build && npm run db:generate",
     "render:start": "npm run start:prod"
   },

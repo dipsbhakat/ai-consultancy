@@ -34,16 +34,41 @@ export function ContactPage() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Form submitted:', data);
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    reset();
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setIsSubmitted(false), 5000);
+    try {
+      // Make real API call to backend
+      const response = await fetch('/api/v1/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          company: data.company,
+          message: data.message,
+          consent: data.consent,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Form submitted successfully:', result);
+      
+      setIsSubmitted(true);
+      reset();
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setIsSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      // You could add error state handling here
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [

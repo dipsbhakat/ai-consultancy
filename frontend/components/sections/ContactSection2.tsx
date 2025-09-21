@@ -76,14 +76,35 @@ const ContactSection = () => {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      setSubmitStatus('idle');
       
-      console.log('Form data:', data);
+      // Make real API call to backend
+      const response = await fetch('/api/v1/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.phone,
+          company: data.company,
+          message: `Project: ${data.projectType}\nBudget: ${data.budget}\nTimeline: ${data.timeline}\nDescription: ${data.description}`,
+          consent: data.consent,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Form submitted successfully:', result);
       
       setSubmitStatus('success');
       reset();
     } catch (error) {
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
     }
   };

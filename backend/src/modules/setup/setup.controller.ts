@@ -1,4 +1,4 @@
-import { Controller, Post, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Get, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../../database/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -11,6 +11,29 @@ export class SetupController {
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,
   ) {}
+
+  @Get('debug')
+  async debug() {
+    try {
+      // Test database connection and table existence
+      const adminCount = await this.prisma.adminUser.count();
+      const contactCount = await this.prisma.contactSubmission.count();
+      
+      return {
+        message: 'Database debug info',
+        adminUserCount: adminCount,
+        contactSubmissionCount: contactCount,
+        databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        error: 'Database error',
+        message: error.message,
+        stack: error.stack
+      };
+    }
+  }
 
   @Post('init-admin')
   @HttpCode(HttpStatus.OK)

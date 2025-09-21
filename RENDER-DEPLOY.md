@@ -99,16 +99,25 @@ Your code is already pushed to GitHub repository.
    - Go to Render Dashboard → New → Web Service
    - Connect GitHub repository: `dipsbhakat/ai-consultancy`
    - **IMPORTANT**: Select "Docker" as environment (NOT Node.js)
-   - **IMPORTANT**: Set Root Directory to `backend` (NOT empty or `/`)
-   - Leave Dockerfile path empty (will auto-detect `backend/Dockerfile`)
+   - **IMPORTANT**: Set Root Directory to `backend`
+   - **IMPORTANT**: Set Dockerfile Path to `Dockerfile` (not empty, not `backend/Dockerfile`)
 
 2. **Verify Configuration**:
    ```
    Environment: Docker
    Root Directory: backend
-   Dockerfile Path: (leave empty - auto-detected)
+   Dockerfile Path: Dockerfile
    Build Command: (leave empty - Docker handles this)
    Start Command: (leave empty - defined in Dockerfile)
+   ```
+
+3. **Alternative Configuration** (if above doesn't work):
+   ```
+   Environment: Docker
+   Root Directory: (leave empty)
+   Dockerfile Path: backend/Dockerfile
+   Build Command: (leave empty)
+   Start Command: (leave empty)
    ```
 
 3. **Add Environment Variables** (in Render dashboard):

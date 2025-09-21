@@ -1,12 +1,15 @@
 // API configuration for different environments
 const getApiBaseUrl = (): string => {
-  // In production, use environment variable or deployed backend URL
-  if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
-  }
+  // Force production URL for testing
+  return 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
   
-  // In development, use local backend
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
+  // Original logic (commented out for testing)
+  // if (import.meta.env.PROD) {
+  //   return import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
+  // }
+  // 
+  // // In development, use local backend
+  // return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
 };
 
 export const API_CONFIG = {

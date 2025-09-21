@@ -133,8 +133,6 @@ export class ContactService {
   private readonly contactSubmissions: ContactSubmission[] = [];
 
   async getTestimonials(): Promise<Testimonial[]> {
-    this.logger.debug('getTestimonials called');
-    
     try {
       // Try to get from database
       const testimonials = await this.prisma.testimonial.findMany({
@@ -166,8 +164,6 @@ export class ContactService {
   }
 
   async getServices(): Promise<Service[]> {
-    this.logger.debug('getServices called');
-    this.logger.debug('Returning mock services');
     return this.mockServices;
   }
 

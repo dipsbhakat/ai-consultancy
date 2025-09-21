@@ -74,7 +74,12 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string): Promise<T> {
-    console.log(`API GET: ${this.baseURL}${endpoint}`);
+    const fullUrl = `${this.baseURL}${endpoint}`;
+    console.log(`API GET: ${fullUrl}`);
+    console.log(`Base URL: ${this.baseURL}`);
+    console.log(`Environment: ${import.meta.env.MODE}`);
+    console.log(`VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL}`);
+    
     const response = await this.fetchWithRetry(endpoint);
     const data = await response.json();
     console.log(`API Response:`, data);

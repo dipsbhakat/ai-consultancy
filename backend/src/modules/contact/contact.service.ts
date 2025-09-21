@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 
 export interface ContactSubmission {
+  id: string;
   name: string;
   email: string;
   phone?: string;
@@ -10,7 +11,21 @@ export interface ContactSubmission {
   budget?: string;
   message: string;
   consent: boolean;
-  submittedAt: Date;
+  status: string;
+  priority: string;
+  source: string;
+  tags: string[];
+  internalNotes?: string;
+  assignedTo?: string;
+  assignedUser?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  respondedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Testimonial {
@@ -171,15 +186,19 @@ export class ContactService {
     return this.mockServices.find(service => service.id === id) || null;
   }
 
-  async submitContact(contactData: Omit<ContactSubmission, 'submittedAt'>): Promise<ContactSubmission> {
-    const submission: ContactSubmission = {
-      ...contactData,
-      submittedAt: new Date()
-    };
-    
+    async submitContact(contactData: {
+    name: string;
+    email: string;
+    phone?: string;
+    company?: string;
+    projectType?: string;
+    budget?: string;
+    message: string;
+    consent: boolean;
+  }): Promise<{ submittedAt: Date }> {
     try {
       // Save to database
-      await this.prisma.contactSubmission.create({
+      const record = await this.prisma.contactSubmission.create({
         data: {
           name: contactData.name,
           email: contactData.email,
@@ -189,28 +208,41 @@ export class ContactService {
           budget: contactData.budget,
           message: contactData.message,
           consent: contactData.consent,
-        },
+          status: 'NEW',
+          priority: 'MEDIUM',
+          source: 'WEBSITE',
+          tags: '[]'
+        }
       });
       
-      this.logger.log(`Contact submission saved for ${contactData.email}`);
+      this.logger.log(`Contact submission saved to database with ID: ${record.id}`);
+      return { submittedAt: record.createdAt };
     } catch (error) {
       this.logger.error('Failed to save contact submission to database', error);
-      // Continue with in-memory storage as fallback
-      this.contactSubmissions.push(submission);
+      throw error;
     }
-    
-    return submission;
   }
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     try {
       // Try to fetch from database first
       const dbSubmissions = await this.prisma.contactSubmission.findMany({
+        include: {
+          assignedUser: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true
+            }
+          }
+        },
         orderBy: { createdAt: 'desc' }
       });
       
       // Convert database records to our interface format
       const submissions: ContactSubmission[] = dbSubmissions.map(record => ({
+        id: record.id,
         name: record.name,
         email: record.email,
         phone: record.phone || undefined,
@@ -219,15 +251,23 @@ export class ContactService {
         budget: record.budget || undefined,
         message: record.message,
         consent: record.consent,
-        submittedAt: record.createdAt
+        status: record.status,
+        priority: record.priority,
+        source: record.source,
+        tags: record.tags ? JSON.parse(record.tags) : [],
+        internalNotes: record.internalNotes || undefined,
+        assignedTo: record.assignedTo || undefined,
+        assignedUser: record.assignedUser || undefined,
+        respondedAt: record.respondedAt?.toISOString() || undefined,
+        createdAt: record.createdAt.toISOString(),
+        updatedAt: record.updatedAt.toISOString()
       }));
       
       this.logger.log(`Retrieved ${submissions.length} submissions from database`);
       return submissions;
     } catch (error) {
-      this.logger.error('Failed to fetch submissions from database, using in-memory fallback', error);
-      // Fallback to in-memory array if database fails
-      return this.contactSubmissions;
+      this.logger.error('Failed to fetch submissions from database', error);
+      return [];
     }
   }
 }

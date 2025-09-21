@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { Mail, Phone, MapPin, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import type { ContactFormData } from '../data';
 import { projectTypes, budgetRanges } from '../data';
+import { apiClient, ENDPOINTS } from '../lib/api';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -35,27 +36,16 @@ export function ContactPage() {
     setIsSubmitting(true);
     
     try {
-      // Make real API call to backend
-      const response = await fetch('http://localhost:3001/api/v1/contact/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          company: data.company,
-          message: data.message,
-          consent: data.consent,
-        }),
+      // Make real API call to backend using proper API client
+      const result = await apiClient.post(ENDPOINTS.CONTACT_SUBMIT, {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        company: data.company,
+        message: data.message,
+        consent: data.consent,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
       console.log('Form submitted successfully:', result);
       
       setIsSubmitted(true);

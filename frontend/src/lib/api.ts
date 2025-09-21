@@ -1,8 +1,8 @@
 // API configuration for different environments
 const getApiBaseUrl = (): string => {
-  // In production, use environment variable
+  // In production, use environment variable or deployed backend URL
   if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_BASE_URL || 'https://your-production-api.com/api/v1';
+    return import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend.onrender.com/api/v1';
   }
   
   // In development, use local backend
@@ -74,8 +74,11 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string): Promise<T> {
+    console.log(`API GET: ${this.baseURL}${endpoint}`);
     const response = await this.fetchWithRetry(endpoint);
-    return response.json();
+    const data = await response.json();
+    console.log(`API Response:`, data);
+    return data;
   }
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {

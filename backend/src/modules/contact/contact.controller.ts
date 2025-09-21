@@ -6,7 +6,8 @@ import {
   Param, 
   HttpStatus, 
   HttpException,
-  ValidationPipe
+  ValidationPipe,
+  Logger
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ContactService, Testimonial, Service, ContactSubmission } from './contact.service';
@@ -50,6 +51,8 @@ export class ContactSubmissionDto {
 @ApiTags('api')
 @Controller('contact')
 export class ContactController {
+  private readonly logger = new Logger(ContactController.name);
+
   constructor(private readonly contactService: ContactService) {}
 
   @Get('testimonials')
@@ -74,9 +77,13 @@ export class ContactController {
     }
   })
   async getTestimonials(): Promise<Testimonial[]> {
+    this.logger.debug('GET /contact/testimonials called');
     try {
-      return await this.contactService.getTestimonials();
+      const testimonials = await this.contactService.getTestimonials();
+      this.logger.debug(`Returning ${testimonials.length} testimonials`);
+      return testimonials;
     } catch (error) {
+      this.logger.error('Error in getTestimonials', error);
       throw new HttpException(
         'Failed to fetch testimonials',
         HttpStatus.INTERNAL_SERVER_ERROR
@@ -115,9 +122,13 @@ export class ContactController {
     }
   })
   async getServices(): Promise<Service[]> {
+    this.logger.debug('GET /contact/services called');
     try {
-      return await this.contactService.getServices();
+      const services = await this.contactService.getServices();
+      this.logger.debug(`Returning ${services.length} services`);
+      return services;
     } catch (error) {
+      this.logger.error('Error in getServices', error);
       throw new HttpException(
         'Failed to fetch services',
         HttpStatus.INTERNAL_SERVER_ERROR

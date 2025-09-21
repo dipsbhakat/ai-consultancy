@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
 import { apiClient, ENDPOINTS } from '../lib/api';
+import { testimonials as fallbackTestimonials } from '../data/index';
 
 // Backend testimonial interface
 interface Testimonial {
@@ -28,8 +29,22 @@ export function TestimonialsPage() {
         console.log('Testimonials fetched successfully:', data);
         setTestimonials(data);
       } catch (err) {
-        console.error('Failed to fetch testimonials:', err);
-        setError('Failed to load testimonials. Please try again later.');
+        console.error('Failed to fetch testimonials from API:', err);
+        console.log('Using fallback testimonials data');
+        
+        // Convert fallback data to match API interface
+        const fallbackData: Testimonial[] = fallbackTestimonials.map(t => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          company: t.company,
+          rating: t.rating,
+          message: t.quote,
+          avatar: t.photoUrl
+        }));
+        
+        setTestimonials(fallbackData);
+        setError('Using offline data. Some features may be limited.');
       } finally {
         setLoading(false);
       }

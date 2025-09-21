@@ -1,15 +1,12 @@
 // API configuration for different environments
 const getApiBaseUrl = (): string => {
-  // Force production URL for testing
-  return 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
+  // In production, use environment variable or deployed backend URL
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
+  }
   
-  // Original logic (commented out for testing)
-  // if (import.meta.env.PROD) {
-  //   return import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
-  // }
-  // 
-  // // In development, use local backend
-  // return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
+  // In development, use local backend
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
 };
 
 export const API_CONFIG = {
@@ -77,15 +74,8 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string): Promise<T> {
-    const fullUrl = `${this.baseURL}${endpoint}`;
-    console.log(`API GET: ${fullUrl}`);
-    console.log(`Base URL: ${this.baseURL}`);
-    console.log(`Environment: ${import.meta.env.MODE}`);
-    console.log(`VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL}`);
-    
     const response = await this.fetchWithRetry(endpoint);
     const data = await response.json();
-    console.log(`API Response:`, data);
     return data;
   }
 

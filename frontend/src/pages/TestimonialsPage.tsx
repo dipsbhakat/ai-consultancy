@@ -24,18 +24,10 @@ export function TestimonialsPage() {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        console.log('Fetching testimonials from API');
-        console.log('Environment mode:', import.meta.env.MODE);
-        console.log('Is production:', import.meta.env.PROD);
-        console.log('API Base URL from env:', import.meta.env.VITE_API_BASE_URL);
-        
         const data = await apiClient.get<Testimonial[]>(ENDPOINTS.TESTIMONIALS);
-        console.log('Testimonials fetched successfully:', data);
         setTestimonials(data);
       } catch (err) {
         console.error('Failed to fetch testimonials from API:', err);
-        console.log('Error details:', err instanceof Error ? err.message : 'Unknown error');
-        console.log('Using fallback testimonials data');
         
         // Convert fallback data to match API interface
         const fallbackData: Testimonial[] = fallbackTestimonials.map(t => ({

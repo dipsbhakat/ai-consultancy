@@ -1,6 +1,9 @@
 # Backend Production Dockerfile
 FROM node:18-alpine AS builder
 
+# Install OpenSSL 1.1 for Prisma compatibility
+RUN apk add --no-cache openssl1.1-compat
+
 WORKDIR /app
 
 # Install dependencies
@@ -22,6 +25,9 @@ RUN npm run build
 # Production image
 FROM node:18-alpine
 
+# Install OpenSSL 1.1 for Prisma compatibility and curl for health checks
+RUN apk add --no-cache openssl1.1-compat curl
+
 # Set production environment
 WORKDIR /app
 
@@ -33,8 +39,8 @@ COPY backend/package*.json ./
 COPY backend/tsconfig.json ./
 COPY backend/nest-cli.json ./
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Regenerate Prisma client for production environment
+RUN npx prisma generate
 
 # Set production environment
 ENV NODE_ENV=production

@@ -98,11 +98,20 @@ Your code is already pushed to GitHub repository.
 1. **Create New Web Service**
    - Go to Render Dashboard → New → Web Service
    - Connect GitHub repository: `dipsbhakat/ai-consultancy`
-   - Select "Docker" as environment
-   - Set Root Directory to `backend`
-   - Dockerfile will be auto-detected
+   - **IMPORTANT**: Select "Docker" as environment (NOT Node.js)
+   - **IMPORTANT**: Set Root Directory to `backend` (NOT empty or `/`)
+   - Leave Dockerfile path empty (will auto-detect `backend/Dockerfile`)
 
-2. **Add Environment Variables** (in Render dashboard):
+2. **Verify Configuration**:
+   ```
+   Environment: Docker
+   Root Directory: backend
+   Dockerfile Path: (leave empty - auto-detected)
+   Build Command: (leave empty - Docker handles this)
+   Start Command: (leave empty - defined in Dockerfile)
+   ```
+
+3. **Add Environment Variables** (in Render dashboard):
    ```
    NODE_ENV=production
    DATABASE_URL=file:./data/production.db
@@ -164,10 +173,61 @@ Your code is already pushed to GitHub repository.
 - **Persistence**: SQLite database persists across deployments
 - **Performance**: Optimized Node.js runtime with Alpine Linux
 
-## Notes
+## Troubleshooting Common Issues
+
+### Backend Deployment Issues
+
+#### Error: "could not find /opt/render/project/src/backend/backend"
+**Cause**: Incorrect root directory configuration or old commit being deployed.
+
+**Solutions**:
+1. **Check Root Directory**: Ensure it's set to `backend` (not empty or `/`)
+2. **Verify Branch**: Make sure you're deploying from `main` branch
+3. **Force Redeploy**: In Render dashboard, go to your service → Manual Deploy → Deploy Latest Commit
+4. **Check Commit**: Ensure latest commit `8d772f8` is being deployed (not `bffa882`)
+
+#### Error: "Docker build failed"
+**Solutions**:
+1. **Check Dockerfile Location**: Should be at `backend/Dockerfile`
+2. **Verify Environment**: Must be set to "Docker" not "Node.js"
+3. **Clear Build Cache**: In Render dashboard, try "Clear build cache and deploy"
+
+#### Error: "Health check failed"
+**Solutions**:
+1. **Check Port**: Ensure PORT environment variable is set to `10000`
+2. **Wait for Startup**: Initial startup can take 30-60 seconds
+3. **Check Health Endpoint**: Should respond at `/api/v1/health`
+
+### Frontend Deployment Issues
+
+#### Error: "Build failed"
+**Solutions**:
+1. **Check Root Directory**: Should be set to `frontend`
+2. **Verify Environment**: Must be "Node.js" for Web Service
+3. **Check Start Command**: Should be `npm run start:prod`
+
+### General Issues
+
+#### Environment Variables Not Working
+**Solutions**:
+1. **Double-check Variable Names**: Ensure exact spelling (case-sensitive)
+2. **Restart Service**: After adding variables, trigger a redeploy
+3. **Check Logs**: View deployment logs for specific errors
+
+## Important Notes
 
 - Backend will be available at: `https://ai-consultancy-backend.onrender.com`
 - Frontend will be available at: `https://ai-consultancy-frontend.onrender.com`
 - Database will use SQLite file storage on Render's persistent disk
 - Health checks are configured for service monitoring
 - Auto-deploy is enabled for both services
+- **Latest Commit**: Ensure you're deploying commit `8d772f8` or later
+- **Root Directories**: Backend=`backend`, Frontend=`frontend` (critical!)
+
+## Manual Deploy Steps (If Auto-Deploy Fails)
+
+1. **Go to Service Dashboard**
+2. **Click "Manual Deploy"**
+3. **Select "Deploy Latest Commit"**
+4. **Monitor Build Logs** for any errors
+5. **Check Health Endpoints** after deployment

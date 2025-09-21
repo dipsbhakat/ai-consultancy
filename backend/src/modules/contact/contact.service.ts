@@ -209,6 +209,29 @@ export class ContactService {
   }
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
-    return this.contactSubmissions;
+    try {
+      // Try to fetch from database first
+      const dbSubmissions = await this.prisma.contactSubmission.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+      
+      // Convert database records to our interface format
+      const submissions: ContactSubmission[] = dbSubmissions.map(record => ({
+        name: record.name,
+        email: record.email,
+        phone: record.phone || undefined,
+        company: record.company || undefined,
+        message: record.message,
+        consent: record.consent,
+        submittedAt: record.createdAt
+      }));
+      
+      this.logger.log(`Retrieved ${submissions.length} submissions from database`);
+      return submissions;
+    } catch (error) {
+      this.logger.error('Failed to fetch submissions from database, using in-memory fallback', error);
+      // Fallback to in-memory array if database fails
+      return this.contactSubmissions;
+    }
   }
 }

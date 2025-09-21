@@ -1,6 +1,7 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../../database/prisma.service';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 interface InitAdminDto {
@@ -18,7 +19,32 @@ export class SetupController {
   constructor(
     private readonly authService: AuthService,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
+
+  @Get('env-check')
+  @HttpCode(HttpStatus.OK)
+  checkEnvironment() {
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+    const jwtExpiresIn = this.configService.get<string>('JWT_EXPIRES_IN');
+    const nodeEnv = this.configService.get<string>('NODE_ENV');
+    
+    return {
+      environment: nodeEnv,
+      jwtSecretSet: !!jwtSecret,
+      jwtSecretLength: jwtSecret ? jwtSecret.length : 0,
+      jwtSecretStart: jwtSecret ? jwtSecret.substring(0, 20) + '...' : 'NOT_SET',
+      jwtExpiresIn: jwtExpiresIn || 'NOT_SET',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      isProduction: nodeEnv === 'production',
+      needsEnvSetup: !jwtSecret || jwtSecret.includes('change') || jwtSecret.includes('dev'),
+      allEnvVars: {
+        PORT: this.configService.get<string>('PORT'),
+        DATABASE_URL: this.configService.get<string>('DATABASE_URL') ? 'SET' : 'NOT_SET'
+      }
+    };
+  }
 
   @Post('unlock-admin')
   @HttpCode(HttpStatus.OK)

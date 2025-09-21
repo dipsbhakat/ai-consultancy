@@ -14,16 +14,18 @@ RUN npm install --only=production && npm cache clean --force
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
 
-# Copy all source files including prisma
-COPY . .
+# Copy package.json first
+COPY package.json ./
 
 # Install all dependencies (including devDependencies)
 RUN npm install
 
+# Copy all source files including prisma
+COPY . .
+
 # Generate Prisma client
-RUN npx prisma generate
+RUN ls -la prisma/ && npx prisma generate
 
 # Build the application
 RUN npm run build

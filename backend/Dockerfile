@@ -9,19 +9,29 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json ./
+# Copy prisma schema for dependency installation
+COPY prisma ./prisma
 RUN npm install --only=production && npm cache clean --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+
+# Copy package.json first
+COPY package.json ./
+
+# Copy Prisma schema before generating client
+COPY prisma ./prisma
 
 # Install all dependencies (including devDependencies)
 RUN npm install
 
 # Generate Prisma client
 RUN npx prisma generate
+
+# Copy the rest of the source code
+COPY . .
 
 # Build the application
 RUN npm run build

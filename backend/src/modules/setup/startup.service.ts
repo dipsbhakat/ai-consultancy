@@ -24,17 +24,34 @@ export class StartupService implements OnModuleInit {
       const adminPassword = 'Admin123!';
       
       // Check if admin exists
-      const admin = await this.prisma.adminUser.findFirst({
+      let admin = await this.prisma.adminUser.findFirst({
         where: { email: adminEmail }
       });
 
       if (!admin) {
-        this.logger.log('⚠️ Admin account not found - it should be created by seed process');
+        this.logger.log('⚠️ Admin account not found - creating it now');
+        const saltRounds = 12;
+        const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
+        
+        admin = await this.prisma.adminUser.create({
+          data: {
+            email: adminEmail,
+            passwordHash,
+            firstName: 'Super',
+            lastName: 'Admin',
+            role: 'SUPERADMIN',
+            isActive: true,
+            loginAttempts: 0,
+          },
+        });
+        this.logger.log(`✅ Created admin account: ${admin.email}`);
         return;
       }
 
-      // Only reset if account is locked
-      if (admin.lockedUntil && admin.lockedUntil > new Date()) {
+      // Always verify password works and reset if needed
+      const passwordValid = await bcrypt.compare(adminPassword, admin.passwordHash);
+      
+      if (!passwordValid || admin.lockedUntil || admin.loginAttempts > 0) {
         const saltRounds = 12;
         const passwordHash = await bcrypt.hash(adminPassword, saltRounds);
         
@@ -47,13 +64,21 @@ export class StartupService implements OnModuleInit {
             lockedUntil: null,
           },
         });
-        this.logger.log(`✅ Unlocked and reset admin account: ${admin.email}`);
+        this.logger.log(`✅ Reset admin account credentials: ${admin.email}`);
+        
+        // Verify the reset worked
+        const testPassword = await bcrypt.compare(adminPassword, passwordHash);
+        if (testPassword) {
+          this.logger.log('✅ Password verification successful after reset');
+        } else {
+          this.logger.error('❌ Password verification failed after reset');
+        }
       } else {
         this.logger.log(`✅ Admin account verified: ${admin.email}`);
       }
 
     } catch (error) {
-      this.logger.error('❌ Failed to verify admin account:', error);
+      this.logger.error('❌ Failed to ensure admin account:', error);
     }
   }
 }

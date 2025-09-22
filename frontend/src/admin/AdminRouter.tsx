@@ -7,6 +7,7 @@ import {
   AdminUsersPage,
   AuditLogsPage
 } from './pages';
+import { AnalyticsDashboardPage } from './components/analytics/AnalyticsDashboardPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -77,6 +78,15 @@ export const AdminRouter = () => {
       />
       
       <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <AnalyticsDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
         path="/users"
         element={
           <ProtectedRoute>
@@ -88,7 +98,7 @@ export const AdminRouter = () => {
       />
       
       <Route
-        path="/audit-logs"
+        path="/audit"
         element={
           <ProtectedRoute>
             <RoleProtectedRoute requiredRoles={['SUPERADMIN', 'EDITOR']}>

@@ -14,13 +14,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'admin-jwt') {
     private readonly authService: AuthService,
   ) {
     const jwtSecret = configService.get<string>('JWT_SECRET');
+    const isProduction = configService.get<string>('NODE_ENV') === 'production';
     
     if (!jwtSecret) {
       throw new Error('JWT_SECRET environment variable is not set');
     }
 
-    if (jwtSecret === 'your-super-secure-jwt-secret-change-this-in-production' || 
-        jwtSecret === 'dev_jwt_secret_change_in_production') {
+    if (isProduction && (jwtSecret === 'your-super-secure-jwt-secret-change-this-in-production' || 
+        jwtSecret === 'dev_jwt_secret_change_in_production')) {
       throw new Error('JWT_SECRET is using default value - please set a secure secret in production');
     }
 

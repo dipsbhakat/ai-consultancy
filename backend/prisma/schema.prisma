@@ -108,8 +108,42 @@ model AdminUser {
   createdServices Service[] @relation("ServiceCreatedBy")
   updatedServices Service[] @relation("ServiceUpdatedBy")
   auditLogs AuditLog[]
+  refreshTokens RefreshToken[]
+  sessions      AdminSession[]
 
   @@map("admin_users")
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  adminId     String
+  admin       AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  isRevoked   Boolean  @default(false)
+  deviceInfo  String?  // User agent hash
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("refresh_tokens")
+}
+
+model AdminSession {
+  id           String    @id @default(cuid())
+  adminId      String
+  admin        AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  sessionToken String    @unique
+  deviceInfo   String?
+  ipAddress    String?
+  userAgent    String?
+  isActive     Boolean   @default(true)
+  lastActivity DateTime  @default(now())
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("admin_sessions")
 }
 
 // Audit Log Model for Tracking All Admin Actions

@@ -195,7 +195,7 @@ export class ContactService {
     budget?: string;
     message: string;
     consent: boolean;
-  }): Promise<{ submittedAt: Date }> {
+  }): Promise<{ id: string; submittedAt: Date }> {
     try {
       // Save to database
       const record = await this.prisma.contactSubmission.create({
@@ -216,10 +216,27 @@ export class ContactService {
       });
       
       this.logger.log(`Contact submission saved to database with ID: ${record.id}`);
-      return { submittedAt: record.createdAt };
+      return { id: record.id, submittedAt: record.createdAt };
     } catch (error) {
       this.logger.error('Failed to save contact submission to database', error);
       throw error;
+    }
+  }
+
+  async getLeadScoreForContact(contactId: string): Promise<{ totalScore: number; grade: string } | null> {
+    try {
+      const leadScore = await this.prisma.leadScore.findUnique({
+        where: { contactId },
+        select: {
+          totalScore: true,
+          grade: true,
+        },
+      });
+      
+      return leadScore;
+    } catch (error) {
+      this.logger.error('Failed to fetch lead score', error);
+      return null;
     }
   }
 

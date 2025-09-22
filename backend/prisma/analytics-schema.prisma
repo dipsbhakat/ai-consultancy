@@ -1,0 +1,128 @@
+// Advanced Analytics Schema Extensions
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  eventType   String   // PAGE_VIEW, FORM_INTERACTION, CONTACT_SUBMIT, etc.
+  eventData   String   // JSON string with event details
+  sessionId   String?  // Browser session tracking
+  userId      String?  // If user is identified
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?  // Traffic source
+  pageUrl     String?
+  timestamp   DateTime @default(now())
+  
+  // Calculated fields
+  leadScore   Int?     // Calculated lead score based on behavior
+  conversionValue Float? // Estimated conversion value
+  
+  @@map("analytics_events")
+  @@index([eventType, timestamp])
+  @@index([sessionId, timestamp])
+}
+
+model LeadScore {
+  id          String   @id @default(cuid())
+  contactId   String   @unique
+  contact     ContactSubmission @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  // Scoring factors
+  demandScore    Int @default(0)    // Based on project type, budget
+  engagementScore Int @default(0)   // Based on form interactions, time on site
+  qualityScore   Int @default(0)    // Based on company, email domain
+  urgencyScore   Int @default(0)    // Based on timeline indicators
+  
+  // Composite scores
+  totalScore     Int @default(0)    // Sum of all scores
+  grade          String @default("C") // A, B, C, D based on total score
+  
+  // Metadata
+  lastCalculated DateTime @default(now())
+  calculatedBy   String?  // System or admin ID
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("lead_scores")
+}
+
+model ConversionFunnel {
+  id            String   @id @default(cuid())
+  sessionId     String
+  stage         String   // VISITOR, ENGAGED, LEAD, CONTACT, QUALIFIED, CONVERTED
+  timestamp     DateTime @default(now())
+  
+  // Context
+  sourceStage   String?  // Previous stage
+  pageUrl       String?
+  eventTrigger  String?  // What caused the stage transition
+  
+  // Attribution
+  trafficSource String?  // organic, paid, referral, direct
+  campaign      String?  // UTM campaign
+  medium        String?  // UTM medium
+  
+  @@map("conversion_funnel")
+  @@index([sessionId, timestamp])
+  @@index([stage, timestamp])
+}
+
+model BusinessMetrics {
+  id              String   @id @default(cuid())
+  metricDate      DateTime // Date for this metric calculation
+  
+  // Traffic metrics
+  totalVisitors   Int @default(0)
+  uniqueVisitors  Int @default(0)
+  pageViews       Int @default(0)
+  avgSessionTime  Float @default(0) // in seconds
+  bounceRate      Float @default(0) // percentage
+  
+  // Lead metrics
+  totalContacts   Int @default(0)
+  qualifiedLeads  Int @default(0)
+  avgLeadScore    Float @default(0)
+  conversionRate  Float @default(0) // contacts/visitors %
+  
+  // Business metrics
+  estimatedValue  Float @default(0) // Total estimated value of leads
+  topTrafficSource String?
+  topLeadSource   String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("business_metrics")
+  @@unique([metricDate])
+}
+
+model CampaignTracking {
+  id            String   @id @default(cuid())
+  campaignName  String
+  
+  // UTM parameters
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  utmTerm       String?
+  utmContent    String?
+  
+  // Performance metrics
+  clicks        Int @default(0)
+  visitors      Int @default(0)
+  contacts      Int @default(0)
+  conversions   Int @default(0)
+  
+  // Cost tracking
+  cost          Float @default(0)
+  costPerClick  Float @default(0)
+  costPerLead   Float @default(0)
+  
+  // Dates
+  startDate     DateTime
+  endDate       DateTime?
+  isActive      Boolean @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("campaign_tracking")
+}

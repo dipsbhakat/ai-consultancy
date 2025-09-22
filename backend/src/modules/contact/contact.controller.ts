@@ -6,10 +6,12 @@ import {
   Param, 
   HttpStatus, 
   HttpException,
-  ValidationPipe
+  ValidationPipe,
+  Request
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ContactService, Testimonial, Service, ContactSubmission } from './contact.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsBoolean } from 'class-validator';
 
 export class ContactSubmissionDto {
@@ -50,7 +52,10 @@ export class ContactSubmissionDto {
 @ApiTags('api')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    private readonly analyticsService: AnalyticsService,
+  ) {}
 
   @Get('testimonials')
   @ApiOperation({ summary: 'Get all testimonials' })
@@ -185,21 +190,70 @@ export class ContactController {
       properties: {
         message: { type: 'string' },
         submissionId: { type: 'string' },
-        submittedAt: { type: 'string' }
+        submittedAt: { type: 'string' },
+        leadScore: {
+          type: 'object',
+          properties: {
+            totalScore: { type: 'number' },
+            grade: { type: 'string' }
+          }
+        }
       }
     }
   })
   @ApiResponse({ status: 400, description: 'Invalid form data' })
   async submitContact(
-    @Body(new ValidationPipe()) contactData: ContactSubmissionDto
-  ): Promise<{ message: string; submissionId: string; submittedAt: string }> {
+    @Body(new ValidationPipe()) contactData: ContactSubmissionDto,
+    @Request() request: any,
+  ): Promise<{ 
+    message: string; 
+    submissionId: string; 
+    submittedAt: string;
+    leadScore?: { totalScore: number; grade: string };
+  }> {
     try {
       const submission = await this.contactService.submitContact(contactData);
       
+      // Track the contact submission event
+      const sessionId = request.headers['x-session-id'] || `session_${Date.now()}`;
+      await this.analyticsService.trackEvent(
+        'CONTACT_SUBMIT',
+        {
+          projectType: contactData.projectType,
+          budget: contactData.budget,
+          hasPhone: !!contactData.phone,
+          hasCompany: !!contactData.company,
+          messageLength: contactData.message.length,
+          pageUrl: request.headers.referer || request.originalUrl,
+        },
+        sessionId,
+        undefined,
+        request,
+      );
+
+      // Calculate lead score automatically
+      let leadScoreResult;
+      try {
+        const leadScoreFactors = await this.analyticsService.calculateLeadScore(submission.id);
+        
+        // Get the stored lead score for the response
+        const leadScore = await this.contactService.getLeadScoreForContact(submission.id);
+        if (leadScore) {
+          leadScoreResult = {
+            totalScore: leadScore.totalScore,
+            grade: leadScore.grade,
+          };
+        }
+      } catch (error) {
+        console.warn('Failed to calculate lead score:', error.message);
+        // Don't fail the contact submission if lead scoring fails
+      }
+      
       return {
         message: 'Contact form submitted successfully. We will get back to you soon!',
-        submissionId: `submission_${Date.now()}`,
-        submittedAt: submission.submittedAt.toISOString()
+        submissionId: submission.id,
+        submittedAt: submission.submittedAt.toISOString(),
+        leadScore: leadScoreResult,
       };
     } catch (error) {
       throw new HttpException(

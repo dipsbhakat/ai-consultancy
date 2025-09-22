@@ -8,6 +8,7 @@ import { SetupModule } from './modules/setup/setup.module';
 import { HealthModule } from './health/health.module';
 import { DatabaseModule } from './database/database.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MonitoringModule } from './monitoring/monitoring.module';
     }]),
     DatabaseModule,
     MonitoringModule,
+    AnalyticsModule,
     ContactModule,
     AuthModule,
     AdminModule,

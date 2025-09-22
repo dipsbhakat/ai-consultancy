@@ -30,14 +30,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem('admin_token');
-      if (token) {
+      const accessToken = localStorage.getItem('admin_access_token');
+      const refreshToken = localStorage.getItem('admin_refresh_token');
+      
+      // Check for old token format and migrate
+      const oldToken = localStorage.getItem('admin_token');
+      if (oldToken && !accessToken) {
+        adminAPI.setToken(oldToken);
+      }
+      
+      if (accessToken && refreshToken) {
+        adminAPI.setTokens(accessToken, refreshToken);
         try {
           const profile = await adminAPI.getProfile();
           setAdmin(profile);
         } catch (error) {
-          console.error('Failed to load admin profile:', error);
-          adminAPI.clearToken();
+          console.error('Failed to get profile:', error);
+          adminAPI.clearTokens();
+        }
+      } else if (accessToken) {
+        // Handle case where we only have access token (old format)
+        try {
+          const profile = await adminAPI.getProfile();
+          setAdmin(profile);
+        } catch (error) {
+          console.error('Failed to get profile with access token:', error);
+          adminAPI.clearTokens();
         }
       }
       setLoading(false);
@@ -79,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout error:', error);
     } finally {
       setAdmin(null);
-      adminAPI.clearToken();
+      adminAPI.clearTokens(); // Use new method
     }
   };
 

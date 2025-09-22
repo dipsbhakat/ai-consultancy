@@ -16,11 +16,19 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001
 
 class AdminAPIService {
   private baseURL: string;
-  private token: string | null = null;
+  private accessToken: string | null = null;
+  private refreshToken: string | null = null;
+  private tokenRefreshPromise: Promise<string | null> | null = null;
 
   constructor() {
-    this.baseURL = API_BASE_URL;
-    this.token = localStorage.getItem('admin_token');
+    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+    // Initialize tokens from localStorage
+    const savedAccessToken = localStorage.getItem('admin_access_token');
+    const savedRefreshToken = localStorage.getItem('admin_refresh_token');
+    if (savedAccessToken && savedRefreshToken) {
+      this.accessToken = savedAccessToken;
+      this.refreshToken = savedRefreshToken;
+    }
   }
 
   private async request<T>(
@@ -28,57 +36,188 @@ class AdminAPIService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    
+    // Ensure we have a valid access token
+    const token = await this.getValidAccessToken();
+    
     const config: RequestInit = {
+      ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
       },
-      ...options,
     };
 
-    try {
-      const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-      }
+    const response = await fetch(url, config);
 
-      return await response.json();
-    } catch (error) {
-      console.error('API Request Error:', error);
-      throw error;
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Unauthorized - try to refresh token
+        const refreshedToken = await this.refreshAccessToken();
+        if (refreshedToken) {
+          // Retry with new token
+          const retryConfig: RequestInit = {
+            ...options,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${refreshedToken}`,
+              ...options.headers,
+            },
+          };
+          const retryResponse = await fetch(url, retryConfig);
+          if (retryResponse.ok) {
+            return retryResponse.json();
+          }
+        }
+        // If refresh failed, clear tokens and throw
+        this.clearTokens();
+        throw new Error('Authentication failed');
+      }
+      
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  private async getValidAccessToken(): Promise<string | null> {
+    if (this.accessToken) {
+      // Check if token is expired (simple check - in production, decode JWT)
+      try {
+        const tokenParts = this.accessToken.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const now = Math.floor(Date.now() / 1000);
+          
+          // If token expires in less than 1 minute, refresh it
+          if (payload.exp && payload.exp - now < 60) {
+            return await this.refreshAccessToken();
+          }
+        }
+      } catch (error) {
+        console.warn('Error checking token expiry:', error);
+      }
+    }
+    
+    return this.accessToken;
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    if (!this.refreshToken) {
+      return null;
+    }
+
+    // Prevent multiple simultaneous refresh requests
+    if (this.tokenRefreshPromise) {
+      return this.tokenRefreshPromise;
+    }
+
+    this.tokenRefreshPromise = this.performTokenRefresh();
+    try {
+      const newToken = await this.tokenRefreshPromise;
+      return newToken;
+    } finally {
+      this.tokenRefreshPromise = null;
     }
   }
 
+  private async performTokenRefresh(): Promise<string | null> {
+    try {
+      const response = await fetch(`${this.baseURL}/admin/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          refreshToken: this.refreshToken,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Token refresh failed');
+      }
+
+      const data = await response.json();
+      this.setTokens(data.accessToken, data.refreshToken);
+      return data.accessToken;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      this.clearTokens();
+      return null;
+    }
+  }
+
+  setTokens(accessToken: string, refreshToken: string) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    localStorage.setItem('admin_access_token', accessToken);
+    localStorage.setItem('admin_refresh_token', refreshToken);
+  }
+
   setToken(token: string) {
-    this.token = token;
-    localStorage.setItem('admin_token', token);
+    // Backward compatibility - treat as access token
+    this.accessToken = token;
+    localStorage.setItem('admin_access_token', token);
+    // Clear old token storage
+    localStorage.removeItem('admin_token');
+  }
+
+  clearTokens() {
+    this.accessToken = null;
+    this.refreshToken = null;
+    this.tokenRefreshPromise = null;
+    localStorage.removeItem('admin_access_token');
+    localStorage.removeItem('admin_refresh_token');
+    localStorage.removeItem('admin_token'); // Clean up old storage
   }
 
   clearToken() {
-    this.token = null;
-    localStorage.removeItem('admin_token');
+    // Backward compatibility
+    this.clearTokens();
   }
 
   // Authentication
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/admin/auth/login', {
+    const response = await this.request<any>('/admin/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
     
-    this.setToken(response.accessToken);
-    return response;
+    // Store both tokens
+    this.setTokens(response.accessToken, response.refreshToken);
+    
+    // Return the expected AuthResponse format
+    return {
+      accessToken: response.accessToken,
+      admin: response.admin,
+    };
   }
 
   async logout(): Promise<void> {
     try {
-      await this.request('/admin/auth/logout', { method: 'POST' });
+      await this.request('/admin/auth/logout', { 
+        method: 'POST',
+        body: JSON.stringify({
+          refreshToken: this.refreshToken,
+        }),
+      });
     } finally {
-      this.clearToken();
+      this.clearTokens();
     }
+  }
+
+  async logoutFromAllDevices(): Promise<void> {
+    try {
+      await this.request('/admin/auth/logout-all', { method: 'POST' });
+    } finally {
+      this.clearTokens();
+    }
+  }
+
+  async getActiveSessions(): Promise<any> {
+    return this.request('/admin/auth/sessions');
   }
 
   async getProfile(): Promise<AdminUser> {

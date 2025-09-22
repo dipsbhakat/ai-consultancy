@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { AdminLayout } from '../components/AdminLayout';
+import { SecurityDashboard } from '../components/SecurityDashboard';
 import { DashboardStats } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
 
@@ -203,6 +204,9 @@ export const AdminDashboardPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Security Dashboard */}
+        <SecurityDashboard className="mt-6" />
       </div>
     </AdminLayout>
   );

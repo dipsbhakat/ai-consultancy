@@ -21,7 +21,7 @@ class AdminAPIService {
   private tokenRefreshPromise: Promise<string | null> | null = null;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
     // Initialize tokens from localStorage
     const savedAccessToken = localStorage.getItem('admin_access_token');
     const savedRefreshToken = localStorage.getItem('admin_refresh_token');

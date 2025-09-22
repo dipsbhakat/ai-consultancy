@@ -97,7 +97,7 @@ class AnalyticsAPIService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
   }
 
   private async getValidAccessToken(): Promise<string | null> {

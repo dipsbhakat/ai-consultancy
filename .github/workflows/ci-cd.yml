@@ -1,0 +1,165 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Test & Quality Checks
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: backend
+      run: npm ci
+
+    - name: Lint code
+      working-directory: backend
+      run: npm run lint
+
+    - name: Type check
+      working-directory: backend
+      run: npm run typecheck
+
+    - name: Generate Prisma client
+      working-directory: backend
+      run: npx prisma generate
+      env:
+        DATABASE_URL: postgresql://postgres:test@localhost:5432/test_db
+
+    - name: Run database migrations
+      working-directory: backend
+      run: npx prisma migrate deploy
+      env:
+        DATABASE_URL: postgresql://postgres:test@localhost:5432/test_db
+
+    - name: Run tests
+      working-directory: backend
+      run: npm test
+      env:
+        DATABASE_URL: postgresql://postgres:test@localhost:5432/test_db
+        JWT_SECRET: test-secret-key-for-ci-cd-pipeline-testing-only
+        NODE_ENV: test
+
+    - name: Build application
+      working-directory: backend
+      run: npm run build
+
+  security:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: backend
+      run: npm ci
+
+    - name: Run security audit
+      working-directory: backend
+      run: npm audit --audit-level=high
+
+    - name: Check for secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Deploy to Render
+      run: |
+        echo "🚀 Deployment triggered by push to main"
+        echo "Render will automatically deploy from this commit"
+        echo "Monitor deployment at: https://dashboard.render.com"
+
+    - name: Health Check
+      run: |
+        echo "⏳ Waiting for deployment to complete..."
+        sleep 120
+        
+        echo "🔍 Running post-deployment health checks..."
+        
+        # Check health endpoint
+        if curl -f https://ai-consultancy-backend-nodejs.onrender.com/api/v1/health; then
+          echo "✅ Health check passed"
+        else
+          echo "❌ Health check failed"
+          exit 1
+        fi
+        
+        # Check readiness
+        if curl -f https://ai-consultancy-backend-nodejs.onrender.com/api/v1/health/ready; then
+          echo "✅ Readiness check passed"
+        else
+          echo "❌ Readiness check failed"
+          exit 1
+        fi
+
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    
+    steps:
+    - name: Deployment Success
+      if: needs.deploy.result == 'success'
+      run: |
+        echo "🎉 Deployment successful!"
+        echo "Backend is live at: https://ai-consultancy-backend-nodejs.onrender.com"
+        
+    - name: Deployment Failed
+      if: needs.deploy.result == 'failure'
+      run: |
+        echo "💥 Deployment failed!"
+        echo "Check logs and investigate immediately"
+        exit 1

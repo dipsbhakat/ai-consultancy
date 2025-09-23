@@ -146,13 +146,6 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
 }) => {
   const { admin } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const handleNavClick = (href: string) => {
-    console.log('Navigating to:', href);
-    navigate(href);
-    if (isMobile) onClose();
-  };
 
   const navigation = [
     { 
@@ -250,11 +243,16 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
           <ul className="nav-list">
             {filteredNavigation.map((item) => (
               <li key={item.name}>
-                <button
-                  onClick={() => handleNavClick(item.href)}
+                <Link
+                  key={`${item.name}-${location.pathname}`}
+                  to={item.href}
+                  onClick={() => {
+                    console.log('Link clicked:', item.href);
+                    if (isMobile) onClose();
+                  }}
                   className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}
                   aria-current={isActive(item.href) ? 'page' : undefined}
-                  style={{ pointerEvents: 'auto', cursor: 'pointer', border: 'none', background: 'transparent', width: '100%', textAlign: 'left' }}
+                  style={{ pointerEvents: 'auto', cursor: 'pointer', textDecoration: 'none' }}
                 >
                   <span className="nav-icon">{item.icon}</span>
                   {(!collapsed || isMobile) && (
@@ -262,7 +260,7 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
                       {item.name}
                     </Text>
                   )}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>

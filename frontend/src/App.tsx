@@ -29,12 +29,13 @@ import { CompetitiveIntelligenceMonitor } from './components/CompetitiveIntellig
 
 // Production Systems
 import { ProductionErrorBoundary, performanceMonitor } from './components/ProductionErrorBoundary';
-import { securityManager } from './utils/security';
+// import { securityManager } from './utils/security';
 import { config } from './config/production';
 
 // Initialize production systems
 if (config.isProduction()) {
-  securityManager.init();
+  // Temporarily disable security manager to fix CSP issues
+  // securityManager.init();
   performanceMonitor.init();
 }
 

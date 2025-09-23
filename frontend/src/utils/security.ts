@@ -26,13 +26,22 @@ export class SecurityManager {
   private setupCSP() {
     if (!config.getSecurityConfig().cspEnabled) return;
 
+    // Get the correct API base URL from config
+    const apiConfig = config.getApiConfig();
+    const apiBaseUrl = apiConfig.baseUrl;
+    
+    // Extract the domain from the API URL
+    const apiUrl = new URL(apiBaseUrl);
+    const apiDomain = apiUrl.origin;
+
     const cspDirectives = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https: blob:",
-      "connect-src 'self' " + config.getApiConfig().baseUrl + " https://www.google-analytics.com",
+      // Allow connections to our backend API and analytics
+      `connect-src 'self' ${apiDomain} ${apiBaseUrl} https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"
@@ -40,13 +49,23 @@ export class SecurityManager {
 
     const cspContent = cspDirectives.join('; ');
     
-    // Create meta tag for CSP
+    // Remove any existing CSP meta tags first
+    const existingCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    if (existingCSP) {
+      existingCSP.remove();
+    }
+    
+    // Create new meta tag for CSP
     const meta = document.createElement('meta');
     meta.httpEquiv = 'Content-Security-Policy';
     meta.content = cspContent;
     document.head.appendChild(meta);
 
-    Logger.info('Content Security Policy configured');
+    Logger.info('Content Security Policy configured', { 
+      apiDomain, 
+      apiBaseUrl,
+      cspContent 
+    });
   }
 
   private setupSecurityHeaders() {

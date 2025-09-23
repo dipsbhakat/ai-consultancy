@@ -30,35 +30,62 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const accessToken = localStorage.getItem('admin_access_token');
-      const refreshToken = localStorage.getItem('admin_refresh_token');
-      
-      // Check for old token format and migrate
-      const oldToken = localStorage.getItem('admin_token');
-      if (oldToken && !accessToken) {
-        adminAPI.setToken(oldToken);
-      }
-      
-      if (accessToken && refreshToken) {
-        adminAPI.setTokens(accessToken, refreshToken);
-        try {
-          const profile = await adminAPI.getProfile();
-          setAdmin(profile);
-        } catch (error) {
-          console.error('Failed to get profile:', error);
-          adminAPI.clearTokens();
+      try {
+        const accessToken = localStorage.getItem('admin_access_token');
+        const refreshToken = localStorage.getItem('admin_refresh_token');
+        
+        // Check for old token format and migrate
+        const oldToken = localStorage.getItem('admin_token');
+        if (oldToken && !accessToken) {
+          adminAPI.setToken(oldToken);
         }
-      } else if (accessToken) {
-        // Handle case where we only have access token (old format)
-        try {
-          const profile = await adminAPI.getProfile();
-          setAdmin(profile);
-        } catch (error) {
-          console.error('Failed to get profile with access token:', error);
-          adminAPI.clearTokens();
+        
+        // Only attempt API calls if we have tokens
+        if (accessToken && refreshToken) {
+          adminAPI.setTokens(accessToken, refreshToken);
+          try {
+            // Add timeout and retry logic for initial profile check
+            const profile = await Promise.race([
+              adminAPI.getProfile(),
+              new Promise<never>((_, reject) => 
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+              )
+            ]) as AdminUser;
+            setAdmin(profile);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.warn('Failed to get profile during initialization:', errorMessage);
+            // Don't clear tokens immediately - they might still be valid
+            // Only clear if it's an auth error (401/403)
+            if (errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('Authentication failed')) {
+              console.log('Clearing invalid tokens');
+              adminAPI.clearTokens();
+            }
+          }
+        } else if (accessToken) {
+          // Handle case where we only have access token (old format)
+          try {
+            const profile = await Promise.race([
+              adminAPI.getProfile(),
+              new Promise<never>((_, reject) => 
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+              )
+            ]) as AdminUser;
+            setAdmin(profile);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.warn('Failed to get profile with access token:', errorMessage);
+            if (errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('Authentication failed')) {
+              adminAPI.clearTokens();
+            }
+          }
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        // Always set loading to false, even if there are network issues
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();

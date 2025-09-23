@@ -49,37 +49,54 @@ class AdminAPIService {
       },
     };
 
-    const response = await fetch(url, config);
+    try {
+      const response = await fetch(url, config);
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        // Unauthorized - try to refresh token
-        const refreshedToken = await this.refreshAccessToken();
-        if (refreshedToken) {
-          // Retry with new token
-          const retryConfig: RequestInit = {
-            ...options,
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${refreshedToken}`,
-              ...options.headers,
-            },
-          };
-          const retryResponse = await fetch(url, retryConfig);
-          if (retryResponse.ok) {
-            return retryResponse.json();
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Unauthorized - try to refresh token
+          const refreshedToken = await this.refreshAccessToken();
+          if (refreshedToken) {
+            // Retry with new token
+            const retryConfig: RequestInit = {
+              ...options,
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${refreshedToken}`,
+                ...options.headers,
+              },
+            };
+            const retryResponse = await fetch(url, retryConfig);
+            if (retryResponse.ok) {
+              return retryResponse.json();
+            }
           }
+          // If refresh failed, clear tokens and throw
+          this.clearTokens();
+          throw new Error('Authentication failed');
         }
-        // If refresh failed, clear tokens and throw
-        this.clearTokens();
-        throw new Error('Authentication failed');
+        
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      // Handle network errors more gracefully
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        // Network error - likely CORS, timeout, or connectivity issue
+        console.error('Network error accessing admin API:', {
+          url,
+          error: error.message,
+          endpoint,
+          baseURL: this.baseURL
+        });
+        throw new Error(`Failed to connect to admin API. Please check your internet connection and try again.`);
       }
       
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+      // Re-throw other errors as-is
+      throw error;
     }
-
-    return response.json();
   }
 
   private async getValidAccessToken(): Promise<string | null> {

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, CheckCircle, TrendingUp, Clock, Shield, Star } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const benefits = [
   "↗️ 300% average ROI within 12 months",
@@ -25,13 +26,14 @@ const urgencyFeatures = [
 export const ConversionHero = () => {
   const [email, setEmail] = useState('');
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleQuickStart = () => {
-    // Simple, reliable navigation
+    // Use React Router navigation instead of window.location
     if (email) {
-      window.location.href = '/contact?email=' + encodeURIComponent(email);
+      navigate('/contact?email=' + encodeURIComponent(email));
     } else {
-      window.location.href = '/contact';
+      navigate('/contact');
     }
   };
 

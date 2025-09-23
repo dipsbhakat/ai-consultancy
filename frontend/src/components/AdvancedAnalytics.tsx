@@ -45,12 +45,14 @@ class AdvancedAnalyticsEngine {
   private session: UserSession;
   private eventQueue: AnalyticsEvent[] = [];
   private isOnline: boolean = navigator.onLine;
-  private apiEndpoint: string = 'http://localhost:3001/api/v1/analytics';
+  private apiEndpoint: string = import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
 
   constructor() {
     this.session = this.initializeSession();
     this.setupEventListeners();
     this.startHeartbeat();
+    // Fix the API endpoint to use analytics path
+    this.apiEndpoint = this.apiEndpoint.replace('/api/v1', '') + '/api/v1/analytics';
   }
 
   public static getInstance(): AdvancedAnalyticsEngine {

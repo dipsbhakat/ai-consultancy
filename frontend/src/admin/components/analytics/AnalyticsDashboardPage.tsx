@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AdminLayout } from '../AdminLayout';
+import { AppShell } from '../AppShell';
 import { AnalyticsOverview } from './AnalyticsOverview';
 import { LeadScoringDashboard } from './LeadScoringDashboard';
 import { ConversionFunnelChart } from './ConversionFunnelChart';
@@ -43,7 +43,7 @@ export const AnalyticsDashboardPage = () => {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <AppShell>
         <div className="space-y-6">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
@@ -58,13 +58,13 @@ export const AnalyticsDashboardPage = () => {
             </div>
           </div>
         </div>
-      </AdminLayout>
+      </AppShell>
     );
   }
 
   if (error) {
     return (
-      <AdminLayout>
+      <AppShell>
         <div className="space-y-6">
           <div className="text-center py-12">
             <div className="text-red-600 mb-4">{error}</div>
@@ -76,24 +76,24 @@ export const AnalyticsDashboardPage = () => {
             </button>
           </div>
         </div>
-      </AdminLayout>
+      </AppShell>
     );
   }
 
   if (!analytics) {
     return (
-      <AdminLayout>
+      <AppShell>
         <div className="space-y-6">
           <div className="text-center py-12 text-gray-500">
             No analytics data available
           </div>
         </div>
-      </AdminLayout>
+      </AppShell>
     );
   }
 
   return (
-    <AdminLayout>
+    <AppShell>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -220,6 +220,6 @@ export const AnalyticsDashboardPage = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </AppShell>
   );
 };

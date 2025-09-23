@@ -1,355 +1,299 @@
-import { useState, useEffect } from 'react';
-import { AdminLayout } from '../components/AdminLayout';
-import { ContactSubmission, ContactStatus, ContactPriority } from '../types';
-import { adminAPI } from '../hooks/useAdminAPI';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState } from 'react';
+import { AppShell } from '../components/AppShell';
+import DataExplorer, { ColumnDefinition } from '../../design-system/DataExplorer';
+import { Badge, Text, Button } from '../../design-system/components';
 
-export const ContactsPage = () => {
-  const { admin } = useAuth();
-  const [contacts, setContacts] = useState<ContactSubmission[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filters, setFilters] = useState({
-    status: '',
-    priority: '',
-    search: ''
-  });
-  const [selectedContact, setSelectedContact] = useState<ContactSubmission | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+/* ===== SAMPLE DATA ===== */
 
-  useEffect(() => {
-    loadContacts();
-  }, [filters]);
+interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'archived';
+  source: string;
+  createdAt: string;
+  lastContact?: string;
+  value?: number;
+  company?: string;
+  phone?: string;
+  actions?: any; // Add this for the actions column
+}
 
-  const loadContacts = async () => {
-    try {
-      setLoading(true);
-      const data = await adminAPI.getContacts({
-        status: filters.status as ContactStatus || undefined,
-        priority: filters.priority as ContactPriority || undefined,
-        search: filters.search || undefined
-      });
-      setContacts(data.contacts);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load contacts');
-    } finally {
-      setLoading(false);
+const generateSampleContacts = (count: number): Contact[] => {
+  const statuses: Contact['status'][] = ['new', 'contacted', 'qualified', 'converted', 'archived'];
+  const sources = ['Website', 'LinkedIn', 'Referral', 'Cold Email', 'Social Media', 'Advertisement'];
+  const companies = ['Tech Corp', 'StartupXYZ', 'Enterprise Ltd', 'Innovation Inc', 'Digital Agency', 'Consulting Group'];
+  
+  return Array.from({ length: count }, (_, i) => ({
+    id: `contact-${i + 1}`,
+    name: `Contact ${i + 1}`,
+    email: `contact${i + 1}@example.com`,
+    status: statuses[Math.floor(Math.random() * statuses.length)],
+    source: sources[Math.floor(Math.random() * sources.length)],
+    createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    lastContact: Math.random() > 0.3 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : undefined,
+    value: Math.random() > 0.4 ? Math.floor(Math.random() * 50000) + 1000 : undefined,
+    company: Math.random() > 0.3 ? companies[Math.floor(Math.random() * companies.length)] : undefined,
+    phone: Math.random() > 0.4 ? `+1 (555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}` : undefined
+  }));
+};
+
+export const ContactsPage: React.FC = () => {
+  const [contacts] = useState<Contact[]>(generateSampleContacts(150));
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [loading] = useState(false);
+
+  /* ===== COLUMN DEFINITIONS ===== */
+
+  const columns: ColumnDefinition<Contact>[] = [
+    {
+      key: 'name',
+      title: 'Name',
+      sortable: true,
+      filterable: true,
+      width: '200px',
+      render: (value, row) => (
+        <div className="flex flex-col">
+          <Text variant="label-sm" weight="medium" color="primary">
+            {value}
+          </Text>
+          <Text variant="body-sm" color="secondary">
+            {row.email}
+          </Text>
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      sortable: true,
+      filterable: true,
+      width: '120px',
+      render: (value) => {
+        const statusColors = {
+          new: 'blue',
+          contacted: 'amber',
+          qualified: 'purple',
+          converted: 'green',
+          archived: 'neutral'
+        } as const;
+        
+        return (
+          <Badge variant={statusColors[value as keyof typeof statusColors]} size="sm">
+            {value}
+          </Badge>
+        );
+      }
+    },
+    {
+      key: 'source',
+      title: 'Source',
+      sortable: true,
+      filterable: true,
+      width: '120px',
+      render: (value) => (
+        <Text variant="body-sm" color="secondary">
+          {value}
+        </Text>
+      )
+    },
+    {
+      key: 'company',
+      title: 'Company',
+      sortable: true,
+      filterable: true,
+      width: '150px',
+      render: (value) => (
+        <Text variant="body-sm" color={value ? 'primary' : 'tertiary'}>
+          {value || '—'}
+        </Text>
+      )
+    },
+    {
+      key: 'value',
+      title: 'Est. Value',
+      sortable: true,
+      type: 'number',
+      width: '120px',
+      align: 'right',
+      render: (value) => (
+        <Text variant="body-sm" color={value ? 'primary' : 'tertiary'} weight={value ? 'medium' : 'regular'}>
+          {value ? `$${value.toLocaleString()}` : '—'}
+        </Text>
+      )
+    },
+    {
+      key: 'createdAt',
+      title: 'Created',
+      sortable: true,
+      type: 'date',
+      width: '120px',
+      render: (value) => (
+        <Text variant="body-sm" color="secondary">
+          {new Date(value).toLocaleDateString()}
+        </Text>
+      )
+    },
+    {
+      key: 'lastContact',
+      title: 'Last Contact',
+      sortable: true,
+      type: 'date',
+      width: '120px',
+      render: (value) => (
+        <Text variant="body-sm" color={value ? 'secondary' : 'tertiary'}>
+          {value ? new Date(value).toLocaleDateString() : '—'}
+        </Text>
+      )
+    },
+    {
+      key: 'actions',
+      title: 'Actions',
+      width: '120px',
+      render: (_, row) => (
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => handleViewContact(row.id)}>
+            View
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => handleEditContact(row.id)}>
+            Edit
+          </Button>
+        </div>
+      )
     }
-  };
+  ];
 
-  const updateContactStatus = async (contactId: string, status: ContactStatus, notes?: string) => {
-    try {
-      await adminAPI.updateContact(contactId, { status, internalNotes: notes });
-      await loadContacts(); // Reload contacts
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update contact');
+  /* ===== FILTER CONFIGURATIONS ===== */
+
+  const filters = [
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select' as const,
+      options: [
+        { value: 'new', label: 'New' },
+        { value: 'contacted', label: 'Contacted' },
+        { value: 'qualified', label: 'Qualified' },
+        { value: 'converted', label: 'Converted' },
+        { value: 'archived', label: 'Archived' }
+      ]
+    },
+    {
+      key: 'source',
+      label: 'Source',
+      type: 'select' as const,
+      options: [
+        { value: 'Website', label: 'Website' },
+        { value: 'LinkedIn', label: 'LinkedIn' },
+        { value: 'Referral', label: 'Referral' },
+        { value: 'Cold Email', label: 'Cold Email' },
+        { value: 'Social Media', label: 'Social Media' },
+        { value: 'Advertisement', label: 'Advertisement' }
+      ]
+    },
+    {
+      key: 'company',
+      label: 'Company',
+      type: 'text' as const,
+      placeholder: 'Filter by company...'
     }
+  ];
+
+  /* ===== EVENT HANDLERS ===== */
+
+  const handleViewContact = (contactId: string) => {
+    console.log('View contact:', contactId);
+    // Navigate to contact detail page
   };
 
-  const updateContactPriority = async (contactId: string, priority: ContactPriority) => {
-    try {
-      await adminAPI.updateContact(contactId, { priority });
-      await loadContacts(); // Reload contacts
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update priority');
-    }
+  const handleEditContact = (contactId: string) => {
+    console.log('Edit contact:', contactId);
+    // Open edit modal or navigate to edit page
   };
 
-  const getStatusBadge = (status: ContactStatus) => {
-    const colors: Record<ContactStatus, string> = {
-      NEW: 'bg-yellow-100 text-yellow-800',
-      IN_REVIEW: 'bg-blue-100 text-blue-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      ARCHIVED: 'bg-gray-100 text-gray-800'
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+  const handleExport = () => {
+    console.log('Export contacts');
+    // Export functionality
   };
 
-  const getPriorityBadge = (priority: ContactPriority) => {
-    const colors: Record<ContactPriority, string> = {
-      LOW: 'bg-gray-100 text-gray-600',
-      MEDIUM: 'bg-yellow-100 text-yellow-700',
-      HIGH: 'bg-orange-100 text-orange-700',
-      URGENT: 'bg-red-100 text-red-700'
-    };
-    return colors[priority] || 'bg-gray-100 text-gray-800';
+  const handleBulkAction = (action: string) => {
+    console.log(`Bulk action ${action} on contacts:`, selectedContacts);
+    // Handle bulk actions
   };
 
-  const canEditContacts = admin?.role === 'SUPERADMIN' || admin?.role === 'EDITOR';
+  /* ===== PAGINATION CONFIG ===== */
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 25;
+
+  const paginationConfig = {
+    page: currentPage,
+    pageSize,
+    total: contacts.length
+  };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="sm:flex sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Contact Management</h1>
-            <p className="text-gray-600">Manage customer inquiries and support requests</p>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+    <AppShell>
+      <div className="p-6">
+        {/* Page Header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Search</label>
-              <input
-                type="text"
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Search by name, email, or company..."
-              />
+              <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+              <Text variant="body-md" color="secondary">
+                Manage your contact database and lead pipeline
+              </Text>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                value={filters.status}
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="NEW">New</option>
-                <option value="IN_REVIEW">In Review</option>
-                <option value="RESOLVED">Resolved</option>
-                <option value="ARCHIVED">Archived</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Priority</label>
-              <select
-                value={filters.priority}
-                onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-                <option value="">All Priorities</option>
-                <option value="LOW">Low</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={() => setFilters({ status: '', priority: '', search: '' })}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Clear Filters
-              </button>
+            
+            <div className="flex items-center gap-3">
+              {selectedContacts.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Text variant="body-sm" color="secondary">
+                    {selectedContacts.length} selected
+                  </Text>
+                  <Button variant="ghost" size="sm" onClick={() => handleBulkAction('archive')}>
+                    Archive
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => handleBulkAction('export')}>
+                    Export
+                  </Button>
+                </div>
+              )}
+              
+              <Button variant="primary" onClick={() => console.log('Add contact')}>
+                Add Contact
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{error}</div>
-          </div>
-        )}
-
-        {/* Contacts Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : contacts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No contacts found</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Service
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Priority
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Submitted
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {contacts.map((contact) => (
-                    <tr key={contact.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{contact.name}</div>
-                          <div className="text-sm text-gray-500">{contact.email}</div>
-                          {contact.company && (
-                            <div className="text-xs text-gray-400">{contact.company}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        Contact Inquiry
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {canEditContacts ? (
-                          <select
-                            value={contact.status}
-                            onChange={(e) => updateContactStatus(contact.id, e.target.value as ContactStatus)}
-                            className={`text-xs px-2 py-1 rounded-full border-0 ${getStatusBadge(contact.status)}`}
-                          >
-                            <option value="NEW">New</option>
-                            <option value="IN_REVIEW">In Review</option>
-                            <option value="RESOLVED">Resolved</option>
-                            <option value="ARCHIVED">Archived</option>
-                          </select>
-                        ) : (
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(contact.status)}`}>
-                            {contact.status.replace('_', ' ')}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {canEditContacts ? (
-                          <select
-                            value={contact.priority}
-                            onChange={(e) => updateContactPriority(contact.id, e.target.value as ContactPriority)}
-                            className={`text-xs px-2 py-1 rounded-full border-0 ${getPriorityBadge(contact.priority)}`}
-                          >
-                            <option value="LOW">Low</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="HIGH">High</option>
-                            <option value="URGENT">Urgent</option>
-                          </select>
-                        ) : (
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadge(contact.priority)}`}>
-                            {contact.priority}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(contact.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => {
-                            setSelectedContact(contact);
-                            setShowDetailsModal(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-900 mr-3"
-                        >
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Contact Details Modal */}
-        {showDetailsModal && selectedContact && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Contact Details</h3>
-                  <button
-                    onClick={() => setShowDetailsModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Name</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedContact.name}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Email</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedContact.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Phone</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedContact.phone || 'Not provided'}</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Company</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedContact.company || 'Not provided'}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Service Interest</label>
-                    <p className="mt-1 text-sm text-gray-900">General Inquiry</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Message</label>
-                    <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{selectedContact.message}</p>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Status</label>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(selectedContact.status)}`}>
-                        {selectedContact.status.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Priority</label>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadge(selectedContact.priority)}`}>
-                        {selectedContact.priority}
-                      </span>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Source</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedContact.source || 'Website'}</p>
-                    </div>
-                  </div>
-
-                  {selectedContact.internalNotes && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Internal Notes</label>
-                      <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{selectedContact.internalNotes}</p>
-                    </div>
-                  )}
-
-                  <div className="text-xs text-gray-500">
-                    Submitted: {new Date(selectedContact.createdAt).toLocaleString()}
-                    {selectedContact.updatedAt !== selectedContact.createdAt && (
-                      <span> • Updated: {new Date(selectedContact.updatedAt).toLocaleString()}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => setShowDetailsModal(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Data Explorer */}
+        <DataExplorer
+          data={contacts}
+          columns={columns}
+          loading={loading}
+          filters={filters}
+          pagination={paginationConfig}
+          onPageChange={setCurrentPage}
+          selection={{
+            enabled: true,
+            selected: selectedContacts,
+            onSelectionChange: setSelectedContacts,
+            getRowId: (row) => row.id
+          }}
+          searchable={true}
+          exportable={true}
+          onExport={handleExport}
+          emptyState={{
+            title: 'No contacts found',
+            description: 'Get started by adding your first contact or adjust your search filters.',
+            action: {
+              label: 'Add Contact',
+              onClick: () => console.log('Add contact')
+            }
+          }}
+        />
       </div>
-    </AdminLayout>
+    </AppShell>
   );
 };

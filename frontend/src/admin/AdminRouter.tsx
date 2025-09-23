@@ -8,6 +8,9 @@ import {
   AuditLogsPage
 } from './pages';
 import { AnalyticsDashboardPage } from './components/analytics/AnalyticsDashboardPage';
+import ActivityPage from './pages/ActivityPage';
+import NotificationDemoPage from '../pages/NotificationDemoPage';
+import DesignSystemShowcasePage from '../pages/DesignSystemShowcasePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -73,6 +76,33 @@ export const AdminRouter = () => {
         element={
           <ProtectedRoute>
             <ContactsPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/activity"
+        element={
+          <ProtectedRoute>
+            <ActivityPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/notifications"
+        element={
+          <ProtectedRoute>
+            <NotificationDemoPage />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/design-system"
+        element={
+          <ProtectedRoute>
+            <DesignSystemShowcasePage />
           </ProtectedRoute>
         }
       />

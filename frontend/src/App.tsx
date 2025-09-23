@@ -6,6 +6,8 @@ import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { AdminRouter, AuthProvider } from './admin';
 import { MobileOptimization, MobileCTABar } from './components/MobileOptimization';
+import { ThemeProvider } from './design-system/ThemeProvider';
+import { NotificationProvider } from './design-system/NotificationSystem';
 
 // Advanced Systems
 import { PersonalizationProvider } from './components/PersonalizationEngine';
@@ -42,12 +44,14 @@ if (config.isProduction()) {
 function App() {
   return (
     <ProductionErrorBoundary>
-      <PersonalizationProvider>
-        <ABTestProvider>
-          <AIPersonalizationProvider>
-            <LeadScoringProvider>
-              <EnterpriseAIProvider>
-                <Router>
+      <ThemeProvider defaultTheme="system">
+        <NotificationProvider>
+          <PersonalizationProvider>
+            <ABTestProvider>
+              <AIPersonalizationProvider>
+                <LeadScoringProvider>
+                  <EnterpriseAIProvider>
+                    <Router>
               <Routes>
                 {/* Main website routes */}
                 <Route path="/" element={
@@ -108,6 +112,8 @@ function App() {
           </AIPersonalizationProvider>
         </ABTestProvider>
       </PersonalizationProvider>
+        </NotificationProvider>
+      </ThemeProvider>
     </ProductionErrorBoundary>
   );
 }export default App;

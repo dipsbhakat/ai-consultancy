@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { AdminRole } from '../types';
 import { Button, Badge, Text } from '../../design-system/components';
+import { CommandPalette } from '../../design-system/CommandPalette';
+import { ThemeToggle } from '../../design-system/ThemeProvider';
 
 /* ===== APP SHELL COMPONENT ===== */
 
@@ -14,6 +16,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -23,13 +28,69 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K to open command palette
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        setCommandPaletteOpen(true);
+      }
+    };
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
+
+  // Command palette commands
+  const commands = [
+    {
+      id: 'dashboard',
+      title: 'Go to Dashboard',
+      description: 'Navigate to the admin dashboard',
+      category: 'Navigation',
+      keywords: ['dashboard', 'home', 'overview'],
+      action: () => navigate('/admin')
+    },
+    {
+      id: 'contacts',
+      title: 'View Contacts',
+      description: 'Manage contact submissions',
+      category: 'Navigation',
+      keywords: ['contacts', 'leads', 'submissions'],
+      action: () => navigate('/admin/contacts')
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      description: 'Configure admin settings',
+      category: 'Navigation',
+      keywords: ['settings', 'config', 'preferences'],
+      action: () => navigate('/admin/settings')
+    },
+    {
+      id: 'logout',
+      title: 'Logout',
+      description: 'Sign out of admin dashboard',
+      category: 'Actions',
+      keywords: ['logout', 'signout', 'exit'],
+      action: () => navigate('/admin/logout')
+    }
+  ];
 
   return (
     <div className="app-shell" data-sidebar-collapsed={sidebarCollapsed}>
+      {/* Command Palette */}
+      <CommandPalette 
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        commands={commands}
+      />
+      
       {/* Mobile backdrop */}
       {isMobile && sidebarOpen && (
         <div 
@@ -103,6 +164,24 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
       name: 'Contacts', 
       href: '/admin/contacts', 
       icon: <ContactsIcon />, 
+      roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] 
+    },
+    { 
+      name: 'Activity', 
+      href: '/admin/activity', 
+      icon: <ActivityIcon />, 
+      roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] 
+    },
+    { 
+      name: 'Notifications', 
+      href: '/admin/notifications', 
+      icon: <BellIcon />, 
+      roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] 
+    },
+    { 
+      name: 'Design System', 
+      href: '/admin/design-system', 
+      icon: <DesignIcon />, 
       roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] 
     },
     { 
@@ -232,6 +311,9 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, showMenuButton }) => {
 
         {/* Right Section */}
         <div className="flex items-center gap-4">
+          {/* Theme Toggle */}
+          <ThemeToggle variant="icon" size="md" />
+          
           {/* User Info */}
           {admin && (
             <div className="flex items-center gap-3">
@@ -324,6 +406,28 @@ const ContactsIcon = () => (
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
     <circle cx="9" cy="7" r="4"/>
     <path d="m22 21-3-3"/>
+  </svg>
+);
+
+const ActivityIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+  </svg>
+);
+
+const BellIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+  </svg>
+);
+
+const DesignIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+    <path d="M2 2l7.586 7.586"/>
+    <circle cx="11" cy="11" r="2"/>
   </svg>
 );
 

@@ -458,7 +458,26 @@ export const PersonalizationProvider: React.FC<{ children: ReactNode }> = ({ chi
 export const usePersonalization = () => {
   const context = useContext(PersonalizationContext);
   if (!context) {
-    throw new Error('usePersonalization must be used within PersonalizationProvider');
+    // Return safe defaults instead of throwing
+    console.warn('usePersonalization used outside of PersonalizationProvider, returning defaults');
+    return {
+      personalizedContent: {},
+      userProfile: {
+        id: 'default',
+        visitCount: 1,
+        lastVisit: Date.now(),
+        interests: [],
+        engagementScore: 0,
+        conversionStage: 'awareness' as const,
+        preferredContentType: 'business' as const,
+        deviceType: 'desktop' as const,
+        behaviorSegment: 'first-time' as const
+      },
+      updateUserData: () => {},
+      trackInterest: () => {},
+      trackEngagement: () => {},
+      appliedRules: []
+    };
   }
   return context;
 };

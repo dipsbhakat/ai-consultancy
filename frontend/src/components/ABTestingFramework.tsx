@@ -567,7 +567,16 @@ export const ABTestProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 export const useABTest = () => {
   const context = useContext(ABTestContext);
   if (!context) {
-    throw new Error('useABTest must be used within ABTestProvider');
+    // Return safe defaults instead of throwing
+    console.warn('useABTest used outside of ABTestProvider, returning defaults');
+    return {
+      getVariant: () => null,
+      trackConversion: () => {},
+      trackClick: () => {},
+      trackEngagement: () => {},
+      activeTests: [],
+      testResults: new Map<string, ABTestResults>()
+    };
   }
   return context;
 };

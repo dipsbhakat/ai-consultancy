@@ -1,13 +1,10 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, CheckCircle, TrendingUp, Clock, Shield, Star } from 'lucide-react';
 import { useState } from 'react';
-import { usePersonalization } from './PersonalizationEngine';
-import { useABTest, ABTestComponent } from './ABTestingFramework';
-import { useAdvancedAnalytics } from './AdvancedAnalytics';
 
 const benefits = [
   "↗️ 300% average ROI within 12 months",
-  "⚡ 80% faster processing times",
+  "⚡ 80% faster processing times", 
   "🎯 99.8% accuracy in predictions",
   "🛡️ Enterprise-grade security",
 ];
@@ -28,26 +25,15 @@ const urgencyFeatures = [
 export const ConversionHero = () => {
   const [email, setEmail] = useState('');
   const [showVideoModal, setShowVideoModal] = useState(false);
-  
-  // Advanced systems integration
-  const { personalizedContent, trackInterest } = usePersonalization();
-  const { trackConversion, trackClick } = useABTest();
-  const { trackEvent, trackEmailCapture } = useAdvancedAnalytics();
 
   const handleQuickStart = () => {
-    // Track multiple conversion events
-    trackEvent('BUTTON_CLICK', { buttonText: 'Get 5-Minute ROI Analysis' });
-    trackConversion('hero-headline-test');
-    trackClick('cta-button-test');
-    trackEmailCapture(email, 'hero-form');
-    trackInterest('roi-analysis');
-    
-    console.log('Quick start clicked with email:', email);
+    // Simple, reliable navigation
+    if (email) {
+      window.location.href = '/contact?email=' + encodeURIComponent(email);
+    } else {
+      window.location.href = '/contact';
+    }
   };
-
-  // Get personalized content or use defaults
-  const heroHeadline = personalizedContent.heroHeadline || 'Turn Your Business Into an AI Powerhouse';
-  const primaryCTA = personalizedContent.primaryCTA || 'Get 5-Minute ROI Analysis';
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-accent-900 overflow-hidden">
@@ -78,42 +64,30 @@ export const ConversionHero = () => {
               <span className="text-accent-200 font-semibold">🔥 Limited Time: 50% Off Implementation</span>
             </motion.div>
 
-            {/* Main Headline - Now using A/B testing */}
-            <ABTestComponent testId="hero-headline-test">
-              {(variant) => (
-                <motion.h1
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.3 }}
-                  className="text-4xl lg:text-6xl font-bold leading-tight mb-6"
-                >
-                  {variant?.content.headline || (
-                    <>
-                      Turn Your Business Into an
-                      <span className="bg-gradient-to-r from-accent-400 to-primary-400 bg-clip-text text-transparent"> AI Powerhouse</span>
-                    </>
-                  )}
-                </motion.h1>
-              )}
-            </ABTestComponent>
+            {/* Main Headline - Static, proven content */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-4xl lg:text-6xl font-bold leading-tight mb-6"
+            >
+              Get <span className="bg-gradient-to-r from-accent-400 to-primary-400 bg-clip-text text-transparent">400% ROI</span> in 90 Days
+              <br />or Your Money Back
+            </motion.h1>
 
-            {/* Value Proposition - Personalized */}
-            <ABTestComponent testId="hero-headline-test">
-              {(variant) => (
-                <motion.p
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-xl text-gray-300 mb-8 leading-relaxed"
-                >
-                  <strong className="text-white">
-                    {variant?.content.subtext || "Stop losing money to manual processes."}
-                  </strong> Our AI solutions deliver 
-                  <span className="text-accent-400 font-semibold"> measurable results in 30 days</span> with
-                  guaranteed ROI or your money back.
-                </motion.p>
-              )}
-            </ABTestComponent>
+            {/* Value Proposition - Static */}
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-xl text-gray-300 mb-8 leading-relaxed"
+            >
+              <strong className="text-white">
+                Join 500+ companies that transformed their business with our AI solutions
+              </strong> Our AI solutions deliver 
+              <span className="text-accent-400 font-semibold"> measurable results in 30 days</span> with
+              guaranteed ROI or your money back.
+            </motion.p>
 
             {/* Benefits List */}
             <motion.div
@@ -148,18 +122,14 @@ export const ConversionHero = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="flex-1 px-4 py-3 rounded-lg border-0 bg-white/20 backdrop-blur-sm text-white placeholder-gray-300 focus:ring-2 focus:ring-accent-400 focus:outline-none"
                 />
-                {/* CTA Button with A/B Testing */}
-                <ABTestComponent testId="cta-button-test">
-                  {(variant) => (
-                    <button
-                      onClick={handleQuickStart}
-                      className="bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-accent-600 hover:to-accent-700 transition-all duration-300 flex items-center justify-center min-w-max group"
-                    >
-                      {variant?.content.buttonText || primaryCTA}
-                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  )}
-                </ABTestComponent>
+                {/* CTA Button - Simple and reliable */}
+                <button
+                  onClick={handleQuickStart}
+                  className="bg-gradient-to-r from-accent-500 to-accent-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-accent-600 hover:to-accent-700 transition-all duration-300 flex items-center justify-center min-w-max group"
+                >
+                  Get Started Now
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
               <p className="text-sm text-gray-400 mt-3">
                 ✓ No credit card required ✓ Results in 24 hours ✓ Guaranteed confidential

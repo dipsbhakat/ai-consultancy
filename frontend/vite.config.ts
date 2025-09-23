@@ -39,10 +39,57 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    rollupOptions: {
-      output: {
-        manualChunks: undefined,
+    sourcemap: process.env.NODE_ENV !== 'production',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.debug', 'console.info'],
       },
     },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          icons: ['lucide-react'],
+          ai: [
+            './src/components/AIPersonalizationEngine',
+            './src/components/AIChatbot',
+            './src/components/AILeadScoring',
+            './src/components/EnterpriseAI',
+          ],
+          analytics: [
+            './src/components/AdvancedAnalytics',
+            './src/components/ABTestingFramework',
+            './src/components/PerformanceOptimization',
+          ],
+          dashboards: [
+            './src/components/BusinessIntelligenceDashboard',
+            './src/components/CompetitiveIntelligenceMonitor',
+            './src/components/AISettingsDashboard',
+          ],
+        },
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          if (!assetInfo.name) return 'assets/[name]-[hash][ext]';
+          
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/\.(css)$/.test(assetInfo.name)) {
+            return `assets/css/[name]-[hash].${ext}`;
+          } else if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name)) {
+            return `assets/images/[name]-[hash].${ext}`;
+          } else if (/\.(woff2?|eot|ttf|otf)$/.test(assetInfo.name)) {
+            return `assets/fonts/[name]-[hash].${ext}`;
+          }
+          return `assets/[name]-[hash].${ext}`;
+        },
+      },
+    },
+    target: 'esnext',
+    chunkSizeWarningLimit: 1000,
   },
 })

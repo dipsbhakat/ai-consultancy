@@ -40,7 +40,6 @@
     "docker:logs": "docker-compose -f docker-compose.prod.yml logs -f",
     "deploy": "./scripts/deploy.sh",
     "deploy:staging": "./scripts/deploy.sh staging",
-    "deploy:render": "./scripts/render-check.sh",
     "health:check": "curl -f http://localhost:3001/api/v1/health && curl -f http://localhost/health"
   },
   "devDependencies": {

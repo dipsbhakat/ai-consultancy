@@ -13,21 +13,11 @@ interface AppShellProps {
 }
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth >= 1024) {
-        setSidebarOpen(false);
-      }
-    };
-
     const handleKeyDown = (event: KeyboardEvent) => {
       // Cmd+K or Ctrl+K to open command palette
       if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
@@ -36,12 +26,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       }
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
     window.addEventListener('keydown', handleKeyDown);
     
     return () => {
-      window.removeEventListener('resize', checkMobile);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
@@ -54,7 +41,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
       description: 'Navigate to the admin dashboard',
       category: 'Navigation',
       keywords: ['dashboard', 'home', 'overview'],
-      action: () => navigate('/admin')
+      action: () => navigate('/admin/dashboard')
     },
     {
       id: 'contacts',
@@ -83,7 +70,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   ];
 
   return (
-    <div className="app-shell" data-sidebar-collapsed={sidebarCollapsed}>
+    <div className="min-h-screen bg-gray-50">
       {/* Command Palette */}
       <CommandPalette 
         isOpen={commandPaletteOpen}
@@ -91,61 +78,30 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         commands={commands}
       />
       
-      {/* Mobile backdrop */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <AdaptiveSidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        isMobile={isMobile}
-      />
-
+      {/* Top Navigation Bar */}
+      <TopNavigationBar />
+      
       {/* Main Content Area */}
-      <div className={`app-main ${sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded'}`}>
-        {/* Top Bar */}
-        <TopBar 
-          onMenuClick={() => setSidebarOpen(true)}
-          showMenuButton={isMobile}
-        />
-        
-        {/* Page Content */}
-        <main className="app-content">
-          <div className="container-custom">
-            {children}
-          </div>
-        </main>
-      </div>
+      <main className="pt-4 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };
 
-/* ===== ADAPTIVE SIDEBAR COMPONENT ===== */
+/* ===== TOP NAVIGATION BAR COMPONENT ===== */
 
-interface AdaptiveSidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
-  open: boolean;
-  onClose: () => void;
-  isMobile: boolean;
-}
-
-const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
-  collapsed,
-  onToggle,
-  open,
-  onClose,
-  isMobile
-}) => {
-  const { admin } = useAuth();
+const TopNavigationBar: React.FC = () => {
+  const { admin, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/admin/login');
+  };
 
   const navigation = [
     { 
@@ -204,189 +160,100 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
 
   const isActive = (path: string) => location.pathname === path;
 
-  const sidebarClasses = [
-    'sidebar',
-    collapsed && !isMobile ? 'sidebar-collapsed' : 'sidebar-expanded',
-    isMobile ? 'sidebar-mobile' : 'sidebar-desktop',
-    isMobile && open ? 'sidebar-open' : ''
-  ].filter(Boolean).join(' ');
-
   return (
-    <aside className={sidebarClasses}>
-      <div className="sidebar-content">
-        {/* Logo/Brand */}
-        <div className="sidebar-header">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-accent-blue rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AI</span>
-            </div>
-            {(!collapsed || isMobile) && (
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Left side - Logo and Navigation */}
+          <div className="flex items-center space-x-8">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-accent-blue rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AI</span>
+              </div>
               <Text variant="heading-sm" color="primary" className="font-semibold">
                 Admin Portal
               </Text>
+            </div>
+
+            {/* Navigation Links */}
+            <nav className="hidden md:flex space-x-1">
+              {filteredNavigation.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  onClick={() => console.log('Navigating to:', item.href)}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-accent-blue text-white'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="w-4 h-4">{item.icon}</span>
+                  <span>{item.name}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Right side - User info and actions */}
+          <div className="flex items-center space-x-4">
+            {/* Environment Badge */}
+            <Badge variant="blue" size="sm">
+              {import.meta.env.MODE === 'production' ? 'Production' : 'Development'}
+            </Badge>
+
+            {/* Theme Toggle */}
+            <ThemeToggle variant="icon" size="md" />
+
+            {/* User Info */}
+            {admin && (
+              <div className="flex items-center space-x-3">
+                <div className="text-right hidden sm:block">
+                  <Text variant="label-sm" weight="medium" color="primary">
+                    {admin.firstName} {admin.lastName}
+                  </Text>
+                  <Badge 
+                    variant={admin.role === AdminRole.SUPERADMIN ? 'purple' : admin.role === AdminRole.EDITOR ? 'blue' : 'neutral'} 
+                    size="sm"
+                  >
+                    {admin.role}
+                  </Badge>
+                </div>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </div>
             )}
           </div>
-          
-          {!isMobile && (
-            <button
-              onClick={onToggle}
-              className="sidebar-toggle"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-            </button>
-          )}
         </div>
 
-        {/* Navigation */}
-        <nav className="sidebar-nav">
-          <ul className="nav-list">
+        {/* Mobile Navigation */}
+        <div className="md:hidden border-t border-gray-200 pt-2 pb-2">
+          <nav className="flex space-x-1 overflow-x-auto">
             {filteredNavigation.map((item) => (
-              <li key={item.name}>
-                <Link
-                  key={`${item.name}-${location.pathname}`}
-                  to={item.href}
-                  onClick={() => {
-                    console.log('Link clicked:', item.href);
-                    if (isMobile) onClose();
-                  }}
-                  className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}
-                  aria-current={isActive(item.href) ? 'page' : undefined}
-                  style={{ pointerEvents: 'auto', cursor: 'pointer', textDecoration: 'none' }}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  {(!collapsed || isMobile) && (
-                    <Text variant="label-md" className="nav-text">
-                      {item.name}
-                    </Text>
-                  )}
-                </Link>
-              </li>
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => console.log('Mobile navigating to:', item.href)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                  isActive(item.href)
+                    ? 'bg-accent-blue text-white'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <span className="w-4 h-4">{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
             ))}
-          </ul>
-        </nav>
-
-        {/* User Profile */}
-        {admin && (
-          <div className="sidebar-footer">
-            <UserProfile admin={admin} collapsed={collapsed && !isMobile} />
-          </div>
-        )}
-      </div>
-    </aside>
-  );
-};
-
-/* ===== TOP BAR COMPONENT ===== */
-
-interface TopBarProps {
-  onMenuClick: () => void;
-  showMenuButton: boolean;
-}
-
-const TopBar: React.FC<TopBarProps> = ({ onMenuClick, showMenuButton }) => {
-  const { admin, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/admin/login');
-  };
-
-  return (
-    <header className="top-bar">
-      <div className="top-bar-content">
-        {/* Left Section */}
-        <div className="flex items-center gap-4">
-          {showMenuButton && (
-            <button
-              onClick={onMenuClick}
-              className="menu-button"
-              aria-label="Open sidebar"
-            >
-              <MenuIcon />
-            </button>
-          )}
-          
-          {/* Environment Badge */}
-          <Badge variant="blue" size="sm">
-            {import.meta.env.MODE === 'production' ? 'Production' : 'Development'}
-          </Badge>
-        </div>
-
-        {/* Right Section */}
-        <div className="flex items-center gap-4">
-          {/* Theme Toggle */}
-          <ThemeToggle variant="icon" size="md" />
-          
-          {/* User Info */}
-          {admin && (
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <Text variant="label-sm" color="primary">
-                  {admin.firstName} {admin.lastName}
-                </Text>
-                <Text variant="label-sm" color="secondary">
-                  {admin.role}
-                </Text>
-              </div>
-              
-              <div className="w-8 h-8 bg-accent-purple rounded-full flex items-center justify-center">
-                <Text variant="label-sm" color="inverse" className="font-medium">
-                  {admin.firstName?.[0]}{admin.lastName?.[0]}
-                </Text>
-              </div>
-
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
-            </div>
-          )}
+          </nav>
         </div>
       </div>
     </header>
   );
 };
 
-/* ===== USER PROFILE COMPONENT ===== */
 
-interface UserProfileProps {
-  admin: any;
-  collapsed: boolean;
-}
-
-const UserProfile: React.FC<UserProfileProps> = ({ admin, collapsed }) => {
-  const getRoleBadgeVariant = (role: AdminRole) => {
-    switch (role) {
-      case AdminRole.SUPERADMIN: return 'purple';
-      case AdminRole.EDITOR: return 'blue';
-      default: return 'neutral';
-    }
-  };
-
-  return (
-    <div className="user-profile">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-accent-purple rounded-full flex items-center justify-center flex-shrink-0">
-          <Text variant="label-md" color="inverse" className="font-medium">
-            {admin.firstName?.[0]}{admin.lastName?.[0]}
-          </Text>
-        </div>
-        
-        {!collapsed && (
-          <div className="flex-1 min-w-0">
-            <Text variant="label-sm" color="primary" className="truncate">
-              {admin.firstName} {admin.lastName}
-            </Text>
-            <Badge variant={getRoleBadgeVariant(admin.role)} size="sm">
-              {admin.role}
-            </Badge>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 /* ===== ICON COMPONENTS ===== */
 
@@ -452,26 +319,6 @@ const AuditIcon = () => (
     <line x1="16" y1="13" x2="8" y2="13"/>
     <line x1="16" y1="17" x2="8" y2="17"/>
     <polyline points="10 9 9 9 8 9"/>
-  </svg>
-);
-
-const ChevronLeftIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="15 18 9 12 15 6"/>
-  </svg>
-);
-
-const ChevronRightIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="9 18 15 12 9 6"/>
-  </svg>
-);
-
-const MenuIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="3" y1="6" x2="21" y2="6"/>
-    <line x1="3" y1="12" x2="21" y2="12"/>
-    <line x1="3" y1="18" x2="21" y2="18"/>
   </svg>
 );
 

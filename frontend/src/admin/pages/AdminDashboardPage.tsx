@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AppShell } from '../components/AppShell';
 import { SecurityDashboard } from '../components/SecurityDashboard';
 import { DashboardStats } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
@@ -29,25 +28,22 @@ export const AdminDashboardPage = () => {
 
   if (error) {
     return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-96">
-          <Card className="max-w-md">
-            <CardContent>
-              <Text variant="heading-md" color="red" className="mb-2">
-                Error Loading Dashboard
-              </Text>
-              <Text variant="body-md" color="secondary">
-                {error}
-              </Text>
-            </CardContent>
-          </Card>
-        </div>
-      </AppShell>
+      <div className="flex items-center justify-center min-h-96">
+        <Card className="max-w-md">
+          <CardContent>
+            <Text variant="heading-md" color="red" className="mb-2">
+              Error Loading Dashboard
+            </Text>
+            <Text variant="body-md" color="secondary">
+              {error}
+            </Text>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <AppShell>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -241,7 +237,6 @@ export const AdminDashboardPage = () => {
         {/* Security Dashboard */}
         <SecurityDashboard className="mt-8" />
       </div>
-    </AppShell>
   );
 };
 

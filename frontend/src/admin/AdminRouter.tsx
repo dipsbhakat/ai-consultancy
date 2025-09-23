@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
+import { AppShell } from './components/AppShell';
 import {
   AdminLoginPage,
   AdminDashboardPage,
@@ -12,8 +13,8 @@ import ActivityPage from './pages/ActivityPage';
 import NotificationDemoPage from '../pages/NotificationDemoPage';
 import DesignSystemShowcasePage from '../pages/DesignSystemShowcasePage';
 
-// Protected Route Component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+// Protected Layout Component - creates AppShell once
+const ProtectedLayout = () => {
   const { isAuthenticated, loading } = useAuth();
   
   if (loading) {
@@ -28,7 +29,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/admin/login" replace />;
   }
   
-  return <>{children}</>;
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
 };
 
 // Role-based Route Component
@@ -59,88 +64,38 @@ export const AdminRouter = () => {
   return (
     <Routes>
       {/* Public admin route */}
-      <Route path="/login" element={<AdminLoginPage />} />
+      <Route path="login" element={<AdminLoginPage />} />
       
-      {/* Protected admin routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <AdminDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/contacts"
-        element={
-          <ProtectedRoute>
-            <ContactsPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/activity"
-        element={
-          <ProtectedRoute>
-            <ActivityPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/notifications"
-        element={
-          <ProtectedRoute>
-            <NotificationDemoPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/design-system"
-        element={
-          <ProtectedRoute>
-            <DesignSystemShowcasePage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/analytics"
-        element={
-          <ProtectedRoute>
-            <AnalyticsDashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/users"
-        element={
-          <ProtectedRoute>
+      {/* Protected admin routes - single layout with nested routes */}
+      <Route path="*" element={<ProtectedLayout />}>
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="contacts" element={<ContactsPage />} />
+        <Route path="activity" element={<ActivityPage />} />
+        <Route path="notifications" element={<NotificationDemoPage />} />
+        <Route path="design-system" element={<DesignSystemShowcasePage />} />
+        <Route path="analytics" element={<AnalyticsDashboardPage />} />
+        
+        {/* Role-protected routes */}
+        <Route 
+          path="users" 
+          element={
             <RoleProtectedRoute requiredRoles={['SUPERADMIN']}>
               <AdminUsersPage />
             </RoleProtectedRoute>
-          </ProtectedRoute>
-        }
-      />
-      
-      <Route
-        path="/audit"
-        element={
-          <ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="audit" 
+          element={
             <RoleProtectedRoute requiredRoles={['SUPERADMIN', 'EDITOR']}>
               <AuditLogsPage />
             </RoleProtectedRoute>
-          </ProtectedRoute>
-        }
-      />
-      
-      {/* Default redirect */}
-      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+          } 
+        />
+        
+        {/* Default redirect */}
+        <Route index element={<Navigate to="dashboard" replace />} />
+      </Route>
     </Routes>
   );
 };

@@ -42,6 +42,7 @@ async function bootstrap() {
   const allowedOrigins = configService.get<string>('ALLOWED_ORIGINS')?.split(',') || [
     'http://localhost:3000',
     'http://localhost:5173',
+    'http://localhost:5174', // Added for Vite dev server alternative port
     'https://ai-consultancy-frontend.onrender.com',
     'https://ai-consultancy.onrender.com',
   ];

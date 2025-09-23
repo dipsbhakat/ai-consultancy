@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Admin Navigation</title>
+</head>
+<body>
+    <h1>Debug Navigation - Open Developer Tools</h1>
+    <script>
+        // Open the admin page and monitor React Router
+        console.log('Opening admin page...');
+        window.open('http://localhost:5173/admin', '_blank');
+        
+        // Instructions for debugging
+        console.log(`
+=== DEBUGGING INSTRUCTIONS ===
+1. Open the admin page in browser
+2. Open Developer Tools (F12)
+3. Go to Console tab
+4. Look for navigation logs when clicking menu items
+5. Check if URL changes but content doesn't update
+6. Look for any React Router errors
+
+Common issues:
+- Routes not matching exactly
+- Missing Outlet components
+- Component not re-rendering
+- Authentication context issues
+        `);
+    </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Admin Panel Navigation Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Backend Connection</h2>
+        <button onclick="testBackend()">Test Backend Health</button>
+        <div id="backend-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Admin Login</h2>
+        <button onclick="testLogin()">Test Login API</button>
+        <div id="login-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Navigation URLs</h2>
+        <button onclick="testNavigation()">Test All Routes</button>
+        <div id="nav-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Manual Navigation Test</h2>
+        <p>Open these links in new tabs to test navigation:</p>
+        <a href="http://localhost:5173/admin/login" target="_blank">Admin Login</a> |
+        <a href="http://localhost:5173/admin/dashboard" target="_blank">Dashboard</a> |
+        <a href="http://localhost:5173/admin/contacts" target="_blank">Contacts</a> |
+        <a href="http://localhost:5173/admin/analytics" target="_blank">Analytics</a> |
+        <a href="http://localhost:5173/admin/activity" target="_blank">Activity</a>
+    </div>
+
+    <script>
+        async function testBackend() {
+            const result = document.getElementById('backend-result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/v1/health');
+                const data = await response.json();
+                
+                if (data.status === 'healthy') {
+                    result.innerHTML = `✅ Backend is healthy! Uptime: ${Math.floor(data.uptime)}s`;
+                    result.className = 'result success';
+                } else {
+                    result.innerHTML = `❌ Backend unhealthy: ${JSON.stringify(data)}`;
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Backend connection failed: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+        
+        async function testLogin() {
+            const result = document.getElementById('login-result');
+            result.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/v1/admin/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@aiconsultancy.com',
+                        password: 'Admin123!'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `✅ Login successful! Admin: ${data.admin.firstName} ${data.admin.lastName} (${data.admin.role})`;
+                    result.className = 'result success';
+                    
+                    // Store tokens for testing
+                    localStorage.setItem('admin_access_token', data.accessToken);
+                    localStorage.setItem('admin_refresh_token', data.refreshToken);
+                } else {
+                    const errorData = await response.json();
+                    result.innerHTML = `❌ Login failed: ${errorData.message || 'Unknown error'}`;
+                    result.className = 'result error';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Login request failed: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+        
+        async function testNavigation() {
+            const result = document.getElementById('nav-result');
+            result.innerHTML = 'Testing navigation routes...';
+            
+            const routes = [
+                '/admin',
+                '/admin/login', 
+                '/admin/dashboard',
+                '/admin/contacts',
+                '/admin/analytics',
+                '/admin/activity',
+                '/admin/notifications'
+            ];
+            
+            let results = [];
+            
+            for (const route of routes) {
+                try {
+                    const response = await fetch(`http://localhost:5173${route}`);
+                    const status = response.ok ? '✅' : '❌';
+                    results.push(`${status} ${route} (${response.status})`);
+                } catch (error) {
+                    results.push(`❌ ${route} (Error: ${error.message})`);
+                }
+            }
+            
+            result.innerHTML = results.join('<br>');
+            result.className = 'result';
+        }
+    </script>
+</body>
+</html>

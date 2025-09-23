@@ -248,6 +248,7 @@ const AdaptiveSidebar: React.FC<AdaptiveSidebarProps> = ({
                   onClick={isMobile ? onClose : undefined}
                   className={`nav-link ${isActive(item.href) ? 'nav-link-active' : ''}`}
                   aria-current={isActive(item.href) ? 'page' : undefined}
+                  style={{ pointerEvents: 'auto', cursor: 'pointer' }}
                 >
                   <span className="nav-icon">{item.icon}</span>
                   {(!collapsed || isMobile) && (

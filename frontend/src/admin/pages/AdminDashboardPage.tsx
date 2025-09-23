@@ -64,7 +64,13 @@ export const AdminDashboardPage = () => {
             <Badge variant="green" size="sm">
               System Healthy
             </Badge>
-            <Button variant="secondary" size="sm">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+              disabled={false}
+              style={{ pointerEvents: 'auto' }}
+            >
               Refresh Data
             </Button>
           </div>

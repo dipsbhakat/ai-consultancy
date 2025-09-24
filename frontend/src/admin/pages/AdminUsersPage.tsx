@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { AdminLayout } from '../components/AdminLayout';
 import { AdminUser, AdminRole, CreateAdminRequest } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
 import { useAuth } from '../hooks/useAuth';
@@ -84,7 +83,6 @@ export const AdminUsersPage = () => {
   const canManageAdmins = admin?.role === 'SUPERADMIN';
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="sm:flex sm:items-center sm:justify-between">
@@ -301,7 +299,6 @@ export const AdminUsersPage = () => {
             </div>
           </div>
         )}
-      </div>
-    </AdminLayout>
+  </div>
   );
 };

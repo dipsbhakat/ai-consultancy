@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { AdminLayout } from '../components/AdminLayout';
 import { AuditLog } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
 
@@ -76,7 +75,6 @@ export const AuditLogsPage = () => {
   };
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -289,7 +287,6 @@ export const AuditLogsPage = () => {
             </div>
           </div>
         )}
-      </div>
-    </AdminLayout>
+  </div>
   );
 };

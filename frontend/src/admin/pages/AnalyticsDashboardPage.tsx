@@ -1,25 +1,27 @@
 import { useState, useEffect } from 'react';
-import { AdminLayout } from '../components/AdminLayout';
 import { BusinessAnalytics, analyticsAPI } from '../hooks/useAnalyticsAPI';
-import { AnalyticsOverview } from '../components/analytics/AnalyticsOverview';
-import { LeadScoringDashboard } from '../components/analytics/LeadScoringDashboard';
-import { ConversionFunnelChart } from '../components/analytics/ConversionFunnelChart';
-import { TopContentChart } from '../components/analytics/TopContentChart';
-import { DateRangePicker } from '../components/analytics/DateRangePicker';
+import { AnalyticsOverview, LeadScoringDashboard, ConversionFunnelChart, TopContentChart, DateRangePicker } from '../components/analytics';
 
 export const AnalyticsDashboardPage = () => {
   const [businessAnalytics, setBusinessAnalytics] = useState<BusinessAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days ago
-    endDate: new Date().toISOString().split('T')[0], // today
+  const [dateRange, setDateRange] = useState<{ startDate: Date; endDate: Date }>(() => {
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    const start = new Date();
+    start.setDate(start.getDate() - 29);
+    start.setHours(0, 0, 0, 0);
+    return { startDate: start, endDate: end };
   });
 
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const data = await analyticsAPI.getBusinessAnalytics(dateRange.startDate, dateRange.endDate);
+      const data = await analyticsAPI.getBusinessAnalytics(
+        dateRange.startDate.toISOString(),
+        dateRange.endDate.toISOString()
+      );
       setBusinessAnalytics(data);
       setError('');
     } catch (err) {
@@ -33,23 +35,20 @@ export const AnalyticsDashboardPage = () => {
     loadAnalytics();
   }, [dateRange]);
 
-  const handleDateRangeChange = (startDate: string, endDate: string) => {
-    setDateRange({ startDate, endDate });
+  const handleDateRangeChange = (range: { startDate: Date; endDate: Date }) => {
+    setDateRange(range);
   };
 
   if (loading) {
     return (
-      <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
-      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <AdminLayout>
         <div className="rounded-md bg-red-50 p-4">
           <div className="text-sm text-red-700">{error}</div>
           <button
@@ -59,12 +58,10 @@ export const AnalyticsDashboardPage = () => {
             Retry
           </button>
         </div>
-      </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -72,11 +69,7 @@ export const AnalyticsDashboardPage = () => {
             <h1 className="text-2xl font-bold text-gray-900">Business Intelligence Dashboard</h1>
             <p className="text-gray-600">Analytics, lead scoring, and performance insights</p>
           </div>
-          <DateRangePicker
-            startDate={dateRange.startDate}
-            endDate={dateRange.endDate}
-            onDateRangeChange={handleDateRangeChange}
-          />
+          <DateRangePicker value={dateRange} onChange={handleDateRangeChange} />
         </div>
 
         {/* Analytics Overview */}
@@ -93,8 +86,8 @@ export const AnalyticsDashboardPage = () => {
 
           {/* Conversion Funnel */}
           <ConversionFunnelChart 
-            startDate={dateRange.startDate} 
-            endDate={dateRange.endDate} 
+            startDate={dateRange.startDate.toISOString()} 
+            endDate={dateRange.endDate.toISOString()} 
           />
 
           {/* Top Content Performance */}
@@ -134,7 +127,6 @@ export const AnalyticsDashboardPage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </AdminLayout>
+  </div>
   );
 };

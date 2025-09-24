@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { AppShell } from '../design-system/components/ModernAppShell';
-import { AdminDashboardPage } from './pages/AdminDashboardPageModern';
 import {
   AdminLoginPage,
   ContactsPage,
@@ -69,13 +68,12 @@ export const AdminRouter = () => {
       
       {/* Protected admin routes - single layout with nested routes */}
       <Route path="*" element={<ProtectedLayout />}>
-        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="analytics" element={<AnalyticsDashboardPage />} />
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="activity" element={<ActivityPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="notifications" element={<NotificationDemoPage />} />
         <Route path="design-system" element={<DesignSystemShowcasePage />} />
-        <Route path="analytics" element={<AnalyticsDashboardPage />} />
         
         {/* Role-protected routes */}
         <Route 
@@ -96,7 +94,10 @@ export const AdminRouter = () => {
         />
         
         {/* Default redirect */}
-        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route index element={<Navigate to="analytics" replace />} />
+        
+        {/* Legacy dashboard redirect */}
+        <Route path="dashboard" element={<Navigate to="analytics" replace />} />
       </Route>
     </Routes>
   );

@@ -36,12 +36,12 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   // Command palette commands
   const commands = [
     {
-      id: 'dashboard',
-      title: 'Go to Dashboard',
-      description: 'Navigate to the admin dashboard',
+      id: 'analytics',
+      title: 'Go to Analytics',
+      description: 'Navigate to the admin analytics',
       category: 'Navigation',
-      keywords: ['dashboard', 'home', 'overview'],
-      action: () => navigate('/admin/dashboard')
+      keywords: ['analytics', 'dashboard', 'home', 'overview'],
+      action: () => navigate('/admin/analytics')
     },
     {
       id: 'contacts',
@@ -105,8 +105,8 @@ const TopNavigationBar: React.FC = () => {
 
   const navigation = [
     { 
-      name: 'Dashboard', 
-      href: '/admin/dashboard', 
+      name: 'Analytics', 
+      href: '/admin/analytics', 
       icon: <DashboardIcon />, 
       roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] 
     },

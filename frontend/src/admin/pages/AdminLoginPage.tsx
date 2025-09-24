@@ -12,7 +12,7 @@ export const AdminLoginPage: React.FC = () => {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/admin/analytics" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +22,7 @@ export const AdminLoginPage: React.FC = () => {
 
     try {
       await login(formData);
-      navigate('/admin/dashboard');
+      navigate('/admin/analytics');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

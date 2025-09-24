@@ -13,10 +13,10 @@ export const DebugRouter: React.FC = () => {
       <p><strong>Hash:</strong> {location.hash}</p>
       <div className="mt-2">
         <button 
-          onClick={() => navigate('/admin/dashboard')}
+          onClick={() => navigate('/admin/analytics')}
           className="bg-white text-red-500 px-2 py-1 mr-1 text-xs"
         >
-          Dashboard
+          Analytics
         </button>
         <button 
           onClick={() => navigate('/admin/contacts')}

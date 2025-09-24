@@ -18,8 +18,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: '📊', roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] },
-    { name: 'Analytics', href: '/admin/analytics', icon: '📈', roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] },
+    { name: 'Analytics', href: '/admin/analytics', icon: '�', roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] },
     { name: 'Contacts', href: '/admin/contacts', icon: '👥', roles: ['SUPERADMIN', 'EDITOR', 'VIEWER'] },
     { name: 'Admin Users', href: '/admin/users', icon: '🔧', roles: ['SUPERADMIN'] },
     { name: 'Audit Logs', href: '/admin/audit', icon: '📋', roles: ['SUPERADMIN', 'EDITOR'] },

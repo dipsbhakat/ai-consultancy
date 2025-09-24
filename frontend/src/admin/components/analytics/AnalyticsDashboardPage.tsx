@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { AnalyticsOverview } from './AnalyticsOverview';
 import { LeadScoringDashboard } from './LeadScoringDashboard';
 import { ConversionFunnelChart } from './ConversionFunnelChart';
@@ -10,7 +9,6 @@ import { DashboardStats } from '../../types';
 import { adminAPI } from '../../hooks/useAdminAPI';
 import { 
   Card, 
-  CardHeader, 
   CardContent, 
   Button, 
   Badge
@@ -215,7 +213,8 @@ export const AnalyticsDashboardPage = () => {
                 </span>
               </div>
               <div className="text-2xl font-bold text-gray-900">
-                {Math.floor(Math.random() * 50) + 10}
+                {/* Hook up to a realtime metric endpoint when available */}
+                —
               </div>
               <div className="text-xs text-gray-500">
                 Updated every 30 seconds

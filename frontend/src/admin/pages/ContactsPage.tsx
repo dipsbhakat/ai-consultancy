@@ -1,50 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DataExplorer, { ColumnDefinition } from '../../design-system/DataExplorer';
 import { Badge, Text, Button } from '../../design-system/components';
+import { adminAPI } from '../hooks/useAdminAPI';
+import { ContactSubmission, ContactStatus, ContactSource } from '../types';
 
-/* ===== SAMPLE DATA ===== */
+/* ===== BACKEND-WIRED DATA ===== */
 
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'archived';
-  source: string;
-  createdAt: string;
-  lastContact?: string;
-  value?: number;
-  company?: string;
-  phone?: string;
-  actions?: any; // Add this for the actions column
-}
-
-const generateSampleContacts = (count: number): Contact[] => {
-  const statuses: Contact['status'][] = ['new', 'contacted', 'qualified', 'converted', 'archived'];
-  const sources = ['Website', 'LinkedIn', 'Referral', 'Cold Email', 'Social Media', 'Advertisement'];
-  const companies = ['Tech Corp', 'StartupXYZ', 'Enterprise Ltd', 'Innovation Inc', 'Digital Agency', 'Consulting Group'];
-  
-  return Array.from({ length: count }, (_, i) => ({
-    id: `contact-${i + 1}`,
-    name: `Contact ${i + 1}`,
-    email: `contact${i + 1}@example.com`,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    source: sources[Math.floor(Math.random() * sources.length)],
-    createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    lastContact: Math.random() > 0.3 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] : undefined,
-    value: Math.random() > 0.4 ? Math.floor(Math.random() * 50000) + 1000 : undefined,
-    company: Math.random() > 0.3 ? companies[Math.floor(Math.random() * companies.length)] : undefined,
-    phone: Math.random() > 0.4 ? `+1 (555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}` : undefined
-  }));
+// Extend backend contact to include a couple of computed UI fields
+type ContactRow = ContactSubmission & {
+  lastContact?: string; // derived from respondedAt or updatedAt for display
+  value?: number; // optional placeholder (not provided by backend)
+  actions?: any; // to satisfy DataExplorer actions column typings
 };
 
 export const ContactsPage: React.FC = () => {
-  const [contacts] = useState<Contact[]>(generateSampleContacts(150));
+  const [contacts, setContacts] = useState<ContactRow[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [total, setTotal] = useState(0);
 
   /* ===== COLUMN DEFINITIONS ===== */
 
-  const columns: ColumnDefinition<Contact>[] = [
+  const columns: ColumnDefinition<ContactRow>[] = [
     {
       key: 'name',
       title: 'Name',
@@ -69,17 +47,17 @@ export const ContactsPage: React.FC = () => {
       filterable: true,
       width: '120px',
       render: (value) => {
-        const statusColors = {
-          new: 'blue',
-          contacted: 'amber',
-          qualified: 'purple',
-          converted: 'green',
-          archived: 'neutral'
-        } as const;
-        
+        // Map backend enum to badge variants + human label
+        const variantMap: Record<ContactStatus, 'blue' | 'amber' | 'green' | 'neutral' | 'purple' | 'red'> = {
+          [ContactStatus.NEW]: 'blue',
+          [ContactStatus.IN_REVIEW]: 'amber',
+          [ContactStatus.RESOLVED]: 'green',
+          [ContactStatus.ARCHIVED]: 'neutral',
+        };
+        const label = String(value).replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
         return (
-          <Badge variant={statusColors[value as keyof typeof statusColors]} size="sm">
-            {value}
+          <Badge variant={variantMap[value as ContactStatus] || 'neutral'} size="sm">
+            {label}
           </Badge>
         );
       }
@@ -90,11 +68,14 @@ export const ContactsPage: React.FC = () => {
       sortable: true,
       filterable: true,
       width: '120px',
-      render: (value) => (
-        <Text variant="body-sm" color="secondary">
-          {value}
-        </Text>
-      )
+      render: (value) => {
+        const label = String(value).replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        return (
+          <Text variant="body-sm" color="secondary">
+            {label}
+          </Text>
+        );
+      }
     },
     {
       key: 'company',
@@ -170,11 +151,10 @@ export const ContactsPage: React.FC = () => {
       label: 'Status',
       type: 'select' as const,
       options: [
-        { value: 'new', label: 'New' },
-        { value: 'contacted', label: 'Contacted' },
-        { value: 'qualified', label: 'Qualified' },
-        { value: 'converted', label: 'Converted' },
-        { value: 'archived', label: 'Archived' }
+        { value: ContactStatus.NEW, label: 'New' },
+        { value: ContactStatus.IN_REVIEW, label: 'In Review' },
+        { value: ContactStatus.RESOLVED, label: 'Resolved' },
+        { value: ContactStatus.ARCHIVED, label: 'Archived' }
       ]
     },
     {
@@ -182,12 +162,11 @@ export const ContactsPage: React.FC = () => {
       label: 'Source',
       type: 'select' as const,
       options: [
-        { value: 'Website', label: 'Website' },
-        { value: 'LinkedIn', label: 'LinkedIn' },
-        { value: 'Referral', label: 'Referral' },
-        { value: 'Cold Email', label: 'Cold Email' },
-        { value: 'Social Media', label: 'Social Media' },
-        { value: 'Advertisement', label: 'Advertisement' }
+        { value: ContactSource.WEBSITE, label: 'Website' },
+        { value: ContactSource.EMAIL, label: 'Email' },
+        { value: ContactSource.REFERRAL, label: 'Referral' },
+        { value: ContactSource.SOCIAL_MEDIA, label: 'Social Media' },
+        { value: ContactSource.OTHER, label: 'Other' }
       ]
     },
     {
@@ -220,16 +199,42 @@ export const ContactsPage: React.FC = () => {
     // Handle bulk actions
   };
 
-  /* ===== PAGINATION CONFIG ===== */
+  /* ===== PAGINATION + DATA FETCH ===== */
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 25;
 
-  const paginationConfig = {
+  useEffect(() => {
+    let isMounted = true;
+    const fetchContacts = async () => {
+      setLoading(true);
+      setError(undefined);
+      try {
+        const res = await adminAPI.getContacts({ page: currentPage, limit: pageSize });
+        if (!isMounted) return;
+        const rows: ContactRow[] = res.contacts.map(c => ({
+          ...c,
+          lastContact: c.respondedAt || c.updatedAt,
+          // value intentionally left undefined unless backend adds it later
+        }));
+        setContacts(rows);
+        setTotal(res.pagination.total);
+      } catch (e: any) {
+        if (!isMounted) return;
+        setError(e?.message || 'Failed to load contacts');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    fetchContacts();
+    return () => { isMounted = false; };
+  }, [currentPage]);
+
+  const paginationConfig = useMemo(() => ({
     page: currentPage,
     pageSize,
-    total: contacts.length
-  };
+    total
+  }), [currentPage, pageSize, total]);
 
   return (
     <div className="p-6">
@@ -269,7 +274,8 @@ export const ContactsPage: React.FC = () => {
       <DataExplorer
         data={contacts}
         columns={columns}
-        loading={loading}
+  loading={loading}
+  error={error}
         filters={filters}
         pagination={paginationConfig}
         onPageChange={setCurrentPage}

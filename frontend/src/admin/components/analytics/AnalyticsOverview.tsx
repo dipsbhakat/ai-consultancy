@@ -5,25 +5,13 @@ interface AnalyticsOverviewProps {
 }
 
 export const AnalyticsOverview = ({ analytics }: AnalyticsOverviewProps) => {
-  const calculatePercentageChange = (current: number, previous: number): number => {
-    if (previous === 0) return current > 0 ? 100 : 0;
-    return ((current - previous) / previous) * 100;
-  };
-
-  // Mock previous period data for percentage changes
-  // In a real implementation, you'd fetch previous period data
-  const mockPreviousData = {
-    visitors: Math.floor(analytics.visitors.total * 0.85),
-    leads: Math.floor(analytics.leads.total * 0.75),
-    qualified: Math.floor(analytics.leads.qualified * 0.8),
-    conversions: Math.floor(analytics.funnel.converted * 0.9),
-  };
+  // Percentage deltas removed (no mock data). If needed, fetch a previous period and compare.
 
   const stats = [
     {
       title: 'Total Visitors',
       value: analytics.visitors.total.toLocaleString(),
-      change: calculatePercentageChange(analytics.visitors.total, mockPreviousData.visitors),
+  change: undefined,
       icon: '👥',
       bgColor: 'bg-blue-500',
       description: `${analytics.visitors.unique} unique, ${analytics.visitors.returning} returning`,
@@ -31,7 +19,7 @@ export const AnalyticsOverview = ({ analytics }: AnalyticsOverviewProps) => {
     {
       title: 'Total Leads',
       value: analytics.leads.total.toLocaleString(),
-      change: calculatePercentageChange(analytics.leads.total, mockPreviousData.leads),
+  change: undefined,
       icon: '🎯',
       bgColor: 'bg-green-500',
       description: `${analytics.leads.conversionRate.toFixed(1)}% conversion rate`,
@@ -39,7 +27,7 @@ export const AnalyticsOverview = ({ analytics }: AnalyticsOverviewProps) => {
     {
       title: 'Qualified Leads',
       value: analytics.leads.qualified.toLocaleString(),
-      change: calculatePercentageChange(analytics.leads.qualified, mockPreviousData.qualified),
+  change: undefined,
       icon: '⭐',
       bgColor: 'bg-yellow-500',
       description: `${((analytics.leads.qualified / analytics.leads.total) * 100).toFixed(0)}% of total leads`,
@@ -47,7 +35,7 @@ export const AnalyticsOverview = ({ analytics }: AnalyticsOverviewProps) => {
     {
       title: 'Conversions',
       value: analytics.funnel.converted.toLocaleString(),
-      change: calculatePercentageChange(analytics.funnel.converted, mockPreviousData.conversions),
+  change: undefined,
       icon: '💰',
       bgColor: 'bg-purple-500',
       description: `${((analytics.funnel.converted / analytics.funnel.visitors) * 100).toFixed(1)}% funnel conversion`,
@@ -81,23 +69,23 @@ export const AnalyticsOverview = ({ analytics }: AnalyticsOverviewProps) => {
               <div className="mt-4">
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-gray-600">{stat.description}</div>
-                  <div className={`flex items-center text-xs font-medium ${
-                    stat.change >= 0 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                  }`}>
-                    <span className="mr-1">
-                      {stat.change >= 0 ? '↗' : '↘'}
-                    </span>
-                    {Math.abs(stat.change).toFixed(1)}%
-                  </div>
+                  {typeof stat.change === 'number' && (
+                    <div className={`flex items-center text-xs font-medium ${
+                      stat.change >= 0 
+                        ? 'text-green-600' 
+                        : 'text-red-600'
+                    }`}>
+                      <span className="mr-1">
+                        {stat.change >= 0 ? '↗' : '↘'}
+                      </span>
+                      {Math.abs(stat.change).toFixed(1)}%
+                    </div>
+                  )}
                 </div>
                 <div className="mt-1 w-full bg-gray-200 rounded-full h-1">
                   <div 
                     className={`h-1 rounded-full ${stat.bgColor}`}
-                    style={{ 
-                      width: `${Math.min(100, Math.max(10, (stat.change + 50)))}%` 
-                    }}
+                    style={{ width: `100%` }}
                   ></div>
                 </div>
               </div>

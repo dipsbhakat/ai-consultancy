@@ -1,81 +1,84 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Timeline, { TimelineEvent } from '../../design-system/Timeline';
 import { Card, CardContent, CardHeader, Text, Button, Badge } from '../../design-system/components';
 import { ThemeToggle } from '../../design-system/ThemeProvider';
+import { adminAPI } from '../hooks/useAdminAPI';
+import { AuditLog } from '../types';
 
-/* ===== SAMPLE DATA ===== */
-
-const generateSampleEvents = (count: number): TimelineEvent[] => {
-  const priorities: TimelineEvent['priority'][] = ['low', 'medium', 'high', 'urgent'];
-  const statuses: TimelineEvent['status'][] = ['pending', 'completed', 'failed'];
-  
-  const eventTemplates = [
-    { type: 'contact', title: 'New contact submission', description: 'Customer inquiry received through website form' },
-    { type: 'status_change', title: 'Status updated', description: 'Contact moved from New to In Review' },
-    { type: 'note', title: 'Internal note added', description: 'Follow-up meeting scheduled for next week' },
-    { type: 'action', title: 'Email sent', description: 'Welcome email sent to new contact' },
-    { type: 'system', title: 'System notification', description: 'Automated backup completed successfully' },
-    { type: 'user', title: 'User logged in', description: 'Admin user accessed the dashboard' },
-  ];
-
-  const users = [
-    { id: '1', name: 'John Doe', avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=John' },
-    { id: '2', name: 'Jane Smith', avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=Jane' },
-    { id: '3', name: 'Bob Johnson', avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=Bob' },
-    { id: '4', name: 'Sarah Wilson', avatar: 'https://api.dicebear.com/7.x/avatars/svg?seed=Sarah' },
-  ];
-
-  return Array.from({ length: count }, (_, i) => {
-    const template = eventTemplates[Math.floor(Math.random() * eventTemplates.length)];
-    const user = users[Math.floor(Math.random() * users.length)];
-    
-    return {
-      id: `event-${i + 1}`,
-      type: template.type as TimelineEvent['type'],
-      title: `${template.title} #${i + 1}`,
-      description: template.description,
-      timestamp: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      user: Math.random() > 0.3 ? user : undefined,
-      priority: Math.random() > 0.5 ? priorities[Math.floor(Math.random() * priorities.length)] : undefined,
-      status: Math.random() > 0.4 ? statuses[Math.floor(Math.random() * statuses.length)] : undefined,
-      relatedEntity: Math.random() > 0.6 ? {
-        type: 'contact',
-        id: `contact-${Math.floor(Math.random() * 100)}`,
-        name: `Contact ${Math.floor(Math.random() * 100)}`
-      } : undefined,
-      metadata: {
-        source: Math.random() > 0.5 ? 'website' : 'admin',
-        automated: Math.random() > 0.7
-      }
-    };
-  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-};
+/* ===== BACKEND DATA (AUDIT LOGS → TIMELINE) ===== */
 
 const ActivityPage: React.FC = () => {
-  const [events, setEvents] = useState<TimelineEvent[]>(generateSampleEvents(50));
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const hasMore = page < pages;
   const [variant, setVariant] = useState<'default' | 'compact' | 'detailed'>('default');
   const [groupBy, setGroupBy] = useState<'none' | 'date' | 'type'>('date');
   const [filter, setFilter] = useState<any>({});
 
+  const mapLogToEvent = (log: AuditLog): TimelineEvent => {
+    const type: TimelineEvent['type'] =
+      log.resource === 'Authentication' ? 'system' :
+      log.action === 'UPDATE' ? 'status_change' :
+      log.action === 'DELETE' ? 'action' :
+      'user';
+    const title = `${log.action} ${log.resource}`;
+    const descParts: string[] = [];
+    if (log.oldValues || log.newValues) {
+      const changes: string[] = [];
+      if (log.newValues && log.oldValues) {
+        Object.keys(log.newValues).forEach(key => {
+          if (['password'].includes(key)) return;
+          if (log.oldValues?.[key] !== log.newValues?.[key]) {
+            changes.push(`${key}: ${String(log.oldValues?.[key])} → ${String(log.newValues?.[key])}`);
+          }
+        });
+      }
+      if (changes.length > 0) descParts.push(changes.join(', '));
+    }
+    if (log.ipAddress) descParts.push(`IP ${log.ipAddress}`);
+
+    return {
+      id: log.id,
+      type,
+      title,
+      description: descParts.join(' · '),
+      timestamp: log.createdAt,
+      user: {
+        id: log.admin.id,
+        name: `${log.admin.firstName} ${log.admin.lastName}`
+      },
+      relatedEntity: log.resourceId ? { type: log.resource, id: log.resourceId, name: log.resourceId } : undefined,
+    };
+  };
+
+  const loadPage = async (targetPage: number) => {
+    const res = await adminAPI.getAuditLogs({ page: targetPage, limit: 25 });
+    setPages(res.pagination.pages);
+    const mapped = res.logs.map(mapLogToEvent);
+    setEvents(prev => targetPage === 1 ? mapped : [...prev, ...mapped]);
+    setPage(targetPage);
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        await loadPage(1);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
   /* ===== EVENT HANDLERS ===== */
 
   const handleLoadMore = async () => {
-    setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newEvents = generateSampleEvents(20);
-    setEvents(prev => [...prev, ...newEvents]);
-    
-    // Stop loading more after a few loads
-    if (events.length > 100) {
-      setHasMore(false);
-    }
-    
-    setLoading(false);
+    if (!hasMore) return;
+    await loadPage(page + 1);
   };
 
   const handleEventClick = (event: TimelineEvent) => {

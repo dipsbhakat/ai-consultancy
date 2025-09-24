@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNotifications } from '../design-system/NotificationSystem';
-import { AppShell } from '../admin/components/AppShell';
-import { Button, Card } from '../design-system/components';
+import { Button, Card } from '../design-system/components/index';
 
 const NotificationDemoPage: React.FC = () => {
   const { success, error, warning, info, clearAll, notifications } = useNotifications();
@@ -99,14 +98,13 @@ const NotificationDemoPage: React.FC = () => {
   };
 
   return (
-    <AppShell>
-      <div className="page">
-        <div className="page-header">
-          <h1 className="page-title">Notification System Demo</h1>
-          <p className="page-subtitle">
-            Test our enterprise-grade notification system with various types and configurations
-          </p>
-        </div>
+    <div className="page">
+      <div className="page-header">
+        <h1 className="page-title">Notification System Demo</h1>
+        <p className="page-subtitle">
+          Test our enterprise-grade notification system with various types and configurations
+        </p>
+      </div>
 
         <div className="page-content">
           {/* Statistics */}
@@ -151,10 +149,9 @@ const NotificationDemoPage: React.FC = () => {
               >
                 Show Success
               </Button>
-              
               <Button 
                 onClick={showErrorNotification}
-                variant="danger"
+                variant="destructive"
                 className="w-full"
               >
                 Show Error
@@ -244,7 +241,6 @@ const NotificationDemoPage: React.FC = () => {
               </div>
               
               <div>
-                <h3 className="font-medium mb-2">Advanced Features</h3>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li>• Auto-dismiss with progress bar</li>
                   <li>• Persistent notifications</li>
@@ -260,7 +256,6 @@ const NotificationDemoPage: React.FC = () => {
           </Card>
         </div>
       </div>
-    </AppShell>
   );
 };
 

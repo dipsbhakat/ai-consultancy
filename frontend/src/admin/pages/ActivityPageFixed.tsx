@@ -103,7 +103,7 @@ const ActivityPage: React.FC = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Activity Timeline</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Activity Timeline</h1>
             <Text variant="body-md" color="secondary">
               Track all system events and user activities in real-time
             </Text>
@@ -118,140 +118,140 @@ const ActivityPage: React.FC = () => {
           </div>
         </div>
 
-          {/* Controls */}
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            {/* Variant Selector */}
-            <div className="flex items-center gap-2">
-              <Text variant="label-sm" color="secondary">View:</Text>
-              <select
-                value={variant}
-                onChange={(e) => setVariant(e.target.value as any)}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="compact">Compact</option>
-                <option value="default">Default</option>
-                <option value="detailed">Detailed</option>
-              </select>
-            </div>
-
-            {/* Group By */}
-            <div className="flex items-center gap-2">
-              <Text variant="label-sm" color="secondary">Group by:</Text>
-              <select
-                value={groupBy}
-                onChange={(e) => setGroupBy(e.target.value as any)}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="none">None</option>
-                <option value="date">Date</option>
-                <option value="type">Type</option>
-              </select>
-            </div>
-
-            {/* Active Filters */}
-            {getActiveFilterCount() > 0 && (
-              <div className="flex items-center gap-2">
-                <Badge variant="blue" size="sm">
-                  {getActiveFilterCount()} filters active
-                </Badge>
-                <Button variant="ghost" size="sm" onClick={clearFilter}>
-                  Clear
-                </Button>
-              </div>
-            )}
+        {/* Controls */}
+        <div className="flex flex-wrap items-center gap-4 mb-4">
+          {/* Variant Selector */}
+          <div className="flex items-center gap-2">
+            <Text variant="label-sm" color="secondary">View:</Text>
+            <select
+              value={variant}
+              onChange={(e) => setVariant(e.target.value as any)}
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm dark:bg-gray-800 dark:border-gray-600"
+            >
+              <option value="compact">Compact</option>
+              <option value="default">Default</option>
+              <option value="detailed">Detailed</option>
+            </select>
           </div>
+
+          {/* Group By */}
+          <div className="flex items-center gap-2">
+            <Text variant="label-sm" color="secondary">Group by:</Text>
+            <select
+              value={groupBy}
+              onChange={(e) => setGroupBy(e.target.value as any)}
+              className="px-3 py-1 border border-gray-300 rounded-md text-sm dark:bg-gray-800 dark:border-gray-600"
+            >
+              <option value="none">None</option>
+              <option value="date">Date</option>
+              <option value="type">Type</option>
+            </select>
+          </div>
+
+          {/* Active Filters */}
+          {getActiveFilterCount() > 0 && (
+            <div className="flex items-center gap-2">
+              <Badge variant="blue" size="sm">
+                {getActiveFilterCount()} filters active
+              </Badge>
+              <Button variant="ghost" size="sm" onClick={clearFilter}>
+                Clear
+              </Button>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text variant="body-sm" color="secondary">Total Events</Text>
-                  <Text variant="heading-lg" color="primary" className="mt-1">
-                    {events.length.toLocaleString()}
-                  </Text>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <ActivityIcon />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text variant="body-sm" color="secondary">Today's Events</Text>
-                  <Text variant="heading-lg" color="primary" className="mt-1">
-                    {events.filter(e => {
-                      const today = new Date();
-                      const eventDate = new Date(e.timestamp);
-                      return eventDate.toDateString() === today.toDateString();
-                    }).length}
-                  </Text>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <TodayIcon />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Text variant="body-sm" color="secondary">Active Users</Text>
-                  <Text variant="heading-lg" color="primary" className="mt-1">
-                    {new Set(events.filter(e => e.user).map(e => e.user!.id)).size}
-                  </Text>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <UsersIcon />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Timeline */}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card>
-          <CardHeader>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
-              <Text variant="heading-md" color="primary">
-                Activity Timeline
-              </Text>
-              
-              <div className="flex items-center gap-2">
-                <Text variant="body-sm" color="secondary">
-                  Showing {events.length} events
+              <div>
+                <Text variant="body-sm" color="secondary">Total Events</Text>
+                <Text variant="heading-lg" color="primary" className="mt-1">
+                  {events.length.toLocaleString()}
                 </Text>
-                {hasMore && (
-                  <Badge variant="neutral" size="sm">
-                    More available
-                  </Badge>
-                )}
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <ActivityIcon />
               </div>
             </div>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            <Timeline
-              events={events}
-              loading={loading}
-              hasMore={hasMore}
-              onLoadMore={handleLoadMore}
-              onEventClick={handleEventClick}
-              variant={variant}
-              groupBy={groupBy}
-              filter={filter}
-              maxHeight="800px"
-            />
           </CardContent>
         </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <Text variant="body-sm" color="secondary">Today's Events</Text>
+                <Text variant="heading-lg" color="primary" className="mt-1">
+                  {events.filter(e => {
+                    const today = new Date();
+                    const eventDate = new Date(e.timestamp);
+                    return eventDate.toDateString() === today.toDateString();
+                  }).length}
+                </Text>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <TodayIcon />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <Text variant="body-sm" color="secondary">Active Users</Text>
+                <Text variant="heading-lg" color="primary" className="mt-1">
+                  {new Set(events.filter(e => e.user).map(e => e.user!.id)).size}
+                </Text>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <UsersIcon />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Timeline */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Text variant="heading-md" color="primary">
+              Activity Timeline
+            </Text>
+            
+            <div className="flex items-center gap-2">
+              <Text variant="body-sm" color="secondary">
+                Showing {events.length} events
+              </Text>
+              {hasMore && (
+                <Badge variant="neutral" size="sm">
+                  More available
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <Timeline
+            events={events}
+            loading={loading}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            onEventClick={handleEventClick}
+            variant={variant}
+            groupBy={groupBy}
+            filter={filter}
+            maxHeight="800px"
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

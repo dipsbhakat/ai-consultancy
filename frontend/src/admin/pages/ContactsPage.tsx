@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { AppShell } from '../components/AppShell';
 import DataExplorer, { ColumnDefinition } from '../../design-system/DataExplorer';
 import { Badge, Text, Button } from '../../design-system/components';
 
@@ -233,67 +232,65 @@ export const ContactsPage: React.FC = () => {
   };
 
   return (
-    <AppShell>
-      <div className="p-6">
-        {/* Page Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
-              <Text variant="body-md" color="secondary">
-                Manage your contact database and lead pipeline
-              </Text>
-            </div>
+    <div className="p-6">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Contacts</h1>
+            <Text variant="body-md" color="secondary">
+              Manage your contact database and lead pipeline
+            </Text>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {selectedContacts.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Text variant="body-sm" color="secondary">
+                  {selectedContacts.length} selected
+                </Text>
+                <Button variant="ghost" size="sm" onClick={() => handleBulkAction('archive')}>
+                  Archive
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => handleBulkAction('export')}>
+                  Export
+                </Button>
+              </div>
+            )}
             
-            <div className="flex items-center gap-3">
-              {selectedContacts.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Text variant="body-sm" color="secondary">
-                    {selectedContacts.length} selected
-                  </Text>
-                  <Button variant="ghost" size="sm" onClick={() => handleBulkAction('archive')}>
-                    Archive
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleBulkAction('export')}>
-                    Export
-                  </Button>
-                </div>
-              )}
-              
-              <Button variant="primary" onClick={() => console.log('Add contact')}>
-                Add Contact
-              </Button>
-            </div>
+            <Button variant="primary" onClick={() => console.log('Add contact')}>
+              Add Contact
+            </Button>
           </div>
         </div>
-
-        {/* Data Explorer */}
-        <DataExplorer
-          data={contacts}
-          columns={columns}
-          loading={loading}
-          filters={filters}
-          pagination={paginationConfig}
-          onPageChange={setCurrentPage}
-          selection={{
-            enabled: true,
-            selected: selectedContacts,
-            onSelectionChange: setSelectedContacts,
-            getRowId: (row) => row.id
-          }}
-          searchable={true}
-          exportable={true}
-          onExport={handleExport}
-          emptyState={{
-            title: 'No contacts found',
-            description: 'Get started by adding your first contact or adjust your search filters.',
-            action: {
-              label: 'Add Contact',
-              onClick: () => console.log('Add contact')
-            }
-          }}
-        />
       </div>
-    </AppShell>
+
+      {/* Data Explorer */}
+      <DataExplorer
+        data={contacts}
+        columns={columns}
+        loading={loading}
+        filters={filters}
+        pagination={paginationConfig}
+        onPageChange={setCurrentPage}
+        selection={{
+          enabled: true,
+          selected: selectedContacts,
+          onSelectionChange: setSelectedContacts,
+          getRowId: (row) => row.id
+        }}
+        searchable={true}
+        exportable={true}
+        onExport={handleExport}
+        emptyState={{
+          title: 'No contacts found',
+          description: 'Get started by adding your first contact or adjust your search filters.',
+          action: {
+            label: 'Add Contact',
+            onClick: () => console.log('Add contact')
+          }
+        }}
+      />
+    </div>
   );
 };

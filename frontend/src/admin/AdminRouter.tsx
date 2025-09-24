@@ -6,7 +6,8 @@ import {
   AdminLoginPage,
   ContactsPage,
   AdminUsersPage,
-  AuditLogsPage
+  AuditLogsPage,
+  SettingsPage
 } from './pages';
 import { AnalyticsDashboardPage } from './components/analytics/AnalyticsDashboardPage';
 import ActivityPage from './pages/ActivityPage';
@@ -71,6 +72,7 @@ export const AdminRouter = () => {
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="activity" element={<ActivityPage />} />
+        <Route path="settings" element={<SettingsPage />} />
         <Route path="notifications" element={<NotificationDemoPage />} />
         <Route path="design-system" element={<DesignSystemShowcasePage />} />
         <Route path="analytics" element={<AnalyticsDashboardPage />} />

@@ -2,7 +2,7 @@ import React, { HTMLAttributes, ReactNode } from 'react';
 
 // Badge Component Types
 export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'size'> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral';
+  variant?: 'neutral' | 'blue' | 'green' | 'amber' | 'red' | 'purple';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
   outline?: boolean;
@@ -46,46 +46,43 @@ export const Badge: React.FC<BadgeProps> = ({
 
   // Variant classes for filled badges
   const filledVariantClasses = {
-    primary: 'bg-blue-100 text-blue-800 focus:ring-blue-500',
-    secondary: 'bg-gray-100 text-gray-800 focus:ring-gray-500',
-    success: 'bg-green-100 text-green-800 focus:ring-green-500',
-    warning: 'bg-yellow-100 text-yellow-800 focus:ring-yellow-500',
-    error: 'bg-red-100 text-red-800 focus:ring-red-500',
-    info: 'bg-cyan-100 text-cyan-800 focus:ring-cyan-500',
     neutral: 'bg-slate-100 text-slate-800 focus:ring-slate-500',
+    blue: 'bg-blue-100 text-blue-800 focus:ring-blue-500',
+    green: 'bg-green-100 text-green-800 focus:ring-green-500',
+    amber: 'bg-yellow-100 text-yellow-800 focus:ring-yellow-500',
+    red: 'bg-red-100 text-red-800 focus:ring-red-500',
+    purple: 'bg-purple-100 text-purple-800 focus:ring-purple-500',
   };
 
   // Variant classes for outlined badges
   const outlineVariantClasses = {
-    primary: 'border border-blue-200 text-blue-700 bg-blue-50 focus:ring-blue-500',
-    secondary: 'border border-gray-200 text-gray-700 bg-gray-50 focus:ring-gray-500',
-    success: 'border border-green-200 text-green-700 bg-green-50 focus:ring-green-500',
-    warning: 'border border-yellow-200 text-yellow-700 bg-yellow-50 focus:ring-yellow-500',
-    error: 'border border-red-200 text-red-700 bg-red-50 focus:ring-red-500',
-    info: 'border border-cyan-200 text-cyan-700 bg-cyan-50 focus:ring-cyan-500',
     neutral: 'border border-slate-200 text-slate-700 bg-slate-50 focus:ring-slate-500',
+    blue: 'border border-blue-200 text-blue-700 bg-blue-50 focus:ring-blue-500',
+    green: 'border border-green-200 text-green-700 bg-green-50 focus:ring-green-500',
+    amber: 'border border-yellow-200 text-yellow-700 bg-yellow-50 focus:ring-yellow-500',
+    red: 'border border-red-200 text-red-700 bg-red-50 focus:ring-red-500',
+    purple: 'border border-purple-200 text-purple-700 bg-purple-50 focus:ring-purple-500',
   };
 
   // Dark mode classes
   const darkClasses = {
-    primary: 'dark:bg-blue-900 dark:text-blue-300',
-    secondary: 'dark:bg-gray-800 dark:text-gray-300',
-    success: 'dark:bg-green-900 dark:text-green-300',
-    warning: 'dark:bg-yellow-900 dark:text-yellow-300',
-    error: 'dark:bg-red-900 dark:text-red-300',
-    info: 'dark:bg-cyan-900 dark:text-cyan-300',
     neutral: 'dark:bg-slate-800 dark:text-slate-300',
+    blue: 'dark:bg-blue-900 dark:text-blue-300',
+    green: 'dark:bg-green-900 dark:text-green-300',
+    amber: 'dark:bg-yellow-900 dark:text-yellow-300',
+    red: 'dark:bg-red-900 dark:text-red-300',
+    purple: 'dark:bg-purple-900 dark:text-purple-300',
   };
 
   const variantClasses = outline
-    ? outlineVariantClasses[variant]
-    : filledVariantClasses[variant];
+    ? outlineVariantClasses[variant as keyof typeof outlineVariantClasses]
+    : filledVariantClasses[variant as keyof typeof filledVariantClasses];
 
   const combinedClasses = [
     baseClasses,
     sizeClasses[size],
     variantClasses,
-    darkClasses[variant],
+    darkClasses[variant as keyof typeof darkClasses],
     className,
   ].filter(Boolean).join(' ');
 
@@ -125,15 +122,15 @@ interface StatusBadgeProps extends Omit<BadgeProps, 'variant'> {
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, ...props }) => {
   const statusVariants = {
-    online: 'success',
+    online: 'green',
     offline: 'neutral',
-    away: 'warning',
-    busy: 'error',
-    active: 'success',
+    away: 'amber',
+    busy: 'red',
+    active: 'green',
     inactive: 'neutral',
-    pending: 'warning',
-    approved: 'success',
-    rejected: 'error',
+    pending: 'amber',
+    approved: 'green',
+    rejected: 'red',
   } as const;
 
   const statusLabels = {

@@ -97,7 +97,7 @@ interface AppShellProps {
   actions?: ReactNode;
 }
 
-/* ===== NAVIGATION ITEMS ===== */
+ /* ===== NAVIGATION ITEMS ===== */
 const navigationItems: NavigationItem[] = [
   {
     name: 'Dashboard',

@@ -3,8 +3,17 @@ import { Link } from 'react-router-dom';
 import { SecurityDashboard } from '../components/SecurityDashboard';
 import { DashboardStats } from '../types';
 import { adminAPI } from '../hooks/useAdminAPI';
-import { MetricCard } from '../../design-system/MetricCard';
-import { Card, CardContent, Text, Button, Badge, Skeleton } from '../../design-system/components';
+import { 
+  AppShell, 
+  Card, 
+  CardHeader, 
+  CardContent, 
+  Button, 
+  Badge, 
+  DataTable,
+  TableActions,
+  Column
+} from '../../design-system/components';
 
 export const AdminDashboardPage = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);

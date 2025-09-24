@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
-import { AppShell } from './components/AppShell';
+import { AppShell } from '../design-system/components/ModernAppShell';
+import { AdminDashboardPage } from './pages/AdminDashboardPageModern';
 import {
   AdminLoginPage,
-  AdminDashboardPage,
   ContactsPage,
   AdminUsersPage,
   AuditLogsPage

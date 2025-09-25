@@ -322,7 +322,18 @@ export const InteractiveFeatures = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-4 gap-8 relative">
+              {/* Connecting line for desktop */}
+              <div className="hidden md:block absolute top-8 left-1/4 right-1/4 h-0.5 bg-white/30 -translate-y-1/2">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '100%' }}
+                  transition={{ duration: 1.5, delay: 0.5 }}
+                  viewport={{ once: true }}
+                  className="h-full bg-white/60"
+                />
+              </div>
+              
               {processSteps.map((step, index) => (
                 <motion.div
                   key={index}
@@ -330,27 +341,13 @@ export const InteractiveFeatures = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.2 }}
                   viewport={{ once: true }}
-                  className="text-center relative"
+                  className="text-center relative z-10"
                 >
                   <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <step.icon className="w-8 h-8" />
                   </div>
                   <h4 className="font-semibold mb-2">{step.title}</h4>
                   <p className="text-primary-100 text-sm">{step.description}</p>
-                  
-                  {index < processSteps.length - 1 && (
-                    <div className="hidden md:block absolute top-8 left-full w-full">
-                      <div className="w-full h-0.5 bg-white/30 relative">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: '100%' }}
-                          transition={{ duration: 1, delay: index * 0.3 }}
-                          viewport={{ once: true }}
-                          className="h-full bg-white/60"
-                        />
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
               ))}
             </div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Brain, 
   Zap, 
@@ -355,10 +356,10 @@ export const InteractiveFeatures = () => {
             </div>
 
             <div className="text-center mt-12">
-              <button className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center mx-auto group">
+              <Link to="/contact" className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center mx-auto group">
                 Start Your AI Transformation
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Quote, ChevronLeft, ChevronRight, Award, TrendingUp, Users, Clock } from 'lucide-react';
 
@@ -364,9 +365,9 @@ export const EnhancedTestimonials = () => {
             <p className="text-gray-600 mb-6">
               Ready to achieve similar results for your business?
             </p>
-            <button className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <Link to="/contact" className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 inline-block">
               Schedule Your Success Strategy Call
-            </button>
+            </Link>
           </motion.div>
         </div>
       </div>

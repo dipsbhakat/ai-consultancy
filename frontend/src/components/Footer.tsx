@@ -16,17 +16,17 @@ const navigation = {
   social: [
     {
       name: 'LinkedIn',
-      href: '#',
+      href: 'https://www.linkedin.com',
       icon: Linkedin,
     },
     {
       name: 'Twitter',
-      href: '#',
+      href: 'https://twitter.com',
       icon: Twitter,
     },
     {
       name: 'GitHub',
-      href: '#',
+      href: 'https://github.com',
       icon: Github,
     },
   ],

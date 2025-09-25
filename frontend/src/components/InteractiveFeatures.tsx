@@ -296,10 +296,10 @@ export const InteractiveFeatures = () => {
                         <span className="text-white/80">Integration</span>
                         <span className="font-semibold">Seamless</span>
                       </div>
-                      <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center group mt-4">
+                      <Link to="/services" className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center group mt-4">
                         Learn More
                         <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export const InteractiveFeatures = () => {
             </div>
 
             <div className="text-center mt-12">
-              <Link to="/contact" className="bg-white text-primary-600 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center mx-auto group">
+              <Link to="/contact" className="bg-white text-primary-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 flex items-center mx-auto group">
                 Start Your AI Transformation
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>

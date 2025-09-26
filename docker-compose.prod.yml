@@ -11,13 +11,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      DATABASE_URL: file:./prod.db
+      DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
     ports:
       - "3001:3001"
     volumes:
-      - backend_data:/app/prisma
       - backend_uploads:/app/uploads
       - backend_logs:/app/logs
     healthcheck:
@@ -80,7 +79,6 @@ services:
     environment:
       BACKUP_SCHEDULE: "0 2 * * *"  # Daily at 2 AM
     volumes:
-      - backend_data:/data:ro
       - ./backups:/backups
       - ./scripts/backup.sh:/backup.sh:ro
     command: ["sh", "-c", "while true; do sleep 86400; /backup.sh; done"]
@@ -103,8 +101,7 @@ services:
       - monitoring
 
 volumes:
-  backend_data:
-    driver: local
+  # backend_data volume removed (no longer needed for PostgreSQL)
   backend_uploads:
     driver: local
   backend_logs:

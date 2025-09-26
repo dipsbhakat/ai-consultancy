@@ -22,7 +22,7 @@ export const MobileOptimization = () => {
   return (
     <>
       {/* Mobile Floating Action Buttons */}
-      <div className="fixed bottom-4 right-4 z-40 flex flex-col space-y-3 lg:hidden">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-3">
         {/* Scroll to Top */}
         <AnimatePresence>
           {showScrollTop && (
@@ -51,7 +51,7 @@ export const MobileOptimization = () => {
 
         {/* WhatsApp Button */}
         <motion.a
-          href="https://wa.me/919876543210?text=Hi! I'm interested in AI solutions for my business."
+          href="https://wa.me/918297982233?text=Hi! I'm interested in AI solutions for my business."
           target="_blank"
           rel="noopener noreferrer"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -166,7 +166,7 @@ export const MobileCTABar = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-r from-primary-600 to-accent-600 text-white p-4 shadow-2xl lg:hidden"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-primary-600 to-accent-600 text-white p-4 shadow-2xl lg:hidden"
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">

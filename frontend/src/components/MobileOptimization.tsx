@@ -21,8 +21,8 @@ export const MobileOptimization = () => {
 
   return (
     <>
-      {/* Mobile Floating Action Buttons */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-3">
+      {/* Floating Action Buttons - Always Visible */}
+      <div className="fixed bottom-4 right-4 z-[9999] flex flex-col space-y-3" style={{ position: 'fixed', bottom: '16px', right: '16px', zIndex: 9999 }}>
         {/* Scroll to Top */}
         <AnimatePresence>
           {showScrollTop && (
@@ -31,9 +31,10 @@ export const MobileOptimization = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={scrollToTop}
-              className="w-12 h-12 bg-gray-800 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors"
+              className="w-14 h-14 bg-gray-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-gray-700 transition-all duration-300 border-2 border-white"
+              style={{ width: '56px', height: '56px' }}
             >
-              <ArrowUp className="w-5 h-5" />
+              <ArrowUp className="w-6 h-6" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -44,9 +45,11 @@ export const MobileOptimization = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="w-12 h-12 bg-green-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-green-600 transition-colors"
+          className="w-14 h-14 bg-green-500 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-green-600 transition-all duration-300 border-2 border-white"
+          style={{ width: '56px', height: '56px', display: 'flex' }}
+          title="Call Now"
         >
-          <Phone className="w-5 h-5" />
+          <Phone className="w-6 h-6" />
         </motion.a>
 
         {/* WhatsApp Button */}
@@ -57,9 +60,11 @@ export const MobileOptimization = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="w-12 h-12 bg-green-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-green-700 transition-colors"
+          className="w-14 h-14 bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-green-700 transition-all duration-300 border-2 border-white"
+          style={{ width: '56px', height: '56px', display: 'flex' }}
+          title="WhatsApp Chat"
         >
-          <MessageCircle className="w-5 h-5" />
+          <MessageCircle className="w-6 h-6" />
         </motion.a>
 
         {/* Schedule Call Button */}
@@ -68,9 +73,11 @@ export const MobileOptimization = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
           onClick={() => setShowMobileMenu(true)}
-          className="w-12 h-12 bg-primary-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-700 transition-colors"
+          className="w-14 h-14 bg-primary-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-primary-700 transition-all duration-300 border-2 border-white"
+          style={{ width: '56px', height: '56px', display: 'flex' }}
+          title="Schedule Call"
         >
-          <Calendar className="w-5 h-5" />
+          <Calendar className="w-6 h-6" />
         </motion.button>
       </div>
 

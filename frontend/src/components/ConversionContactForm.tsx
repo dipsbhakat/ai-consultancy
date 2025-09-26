@@ -253,7 +253,7 @@ export const ConversionContactForm = () => {
   }
 
   return (
-    <section id="contact-form" className="section-padding bg-gradient-to-br from-gray-50 to-white overflow-hidden">
+    <section id="contact-form" className="section-padding bg-gradient-to-br from-gray-50 to-white overflow-x-hidden">
       <div className="container-custom">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
@@ -340,8 +340,9 @@ export const ConversionContactForm = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-white rounded-xl lg:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-hidden"
+              className="bg-white rounded-xl lg:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 w-full max-w-full min-h-0"
             >
+              <div className="max-h-[80vh] sm:max-h-none overflow-y-auto overflow-x-hidden">
               {/* Progress Bar */}
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
@@ -446,7 +447,7 @@ export const ConversionContactForm = () => {
                         name="projectType"
                         value={formData.projectType}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
                         required
                       >
                         <option value="">Select project type</option>
@@ -464,7 +465,7 @@ export const ConversionContactForm = () => {
                         name="budget"
                         value={formData.budget}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
                         required
                       >
                         <option value="">Select budget range</option>
@@ -482,7 +483,7 @@ export const ConversionContactForm = () => {
                         name="timeline"
                         value={formData.timeline}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
                         required
                       >
                         <option value="">Select timeline</option>
@@ -604,6 +605,7 @@ export const ConversionContactForm = () => {
                     Quick response
                   </div>
                 </div>
+              </div>
               </div>
             </motion.div>
           </div>

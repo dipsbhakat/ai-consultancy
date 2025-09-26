@@ -23,7 +23,7 @@ const urgencyFeatures = [
   { icon: Shield, text: "Risk-free 30-day trial available" },
 ];
 
-export const ConversionHero = () => {
+export const ConversionHero = ({ mobileMenuOpen }: { mobileMenuOpen?: boolean }) => {
   const [email, setEmail] = useState('');
   const [showVideoModal, setShowVideoModal] = useState(false);
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export const ConversionHero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-accent-900 overflow-hidden">
+    <section className="relative min-h-screen pb-16 flex items-center justify-center bg-gradient-to-br from-primary-900 via-primary-800 to-accent-900 overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-600/20 via-transparent to-transparent"></div>
@@ -58,9 +58,10 @@ export const ConversionHero = () => {
             {/* Urgency Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: mobileMenuOpen ? 80 : 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="inline-flex items-center bg-gradient-to-r from-accent-500/20 to-primary-500/20 border border-accent-400/30 rounded-full px-6 py-3 mb-6 backdrop-blur-sm"
+              style={{ marginTop: mobileMenuOpen ? '64px' : undefined }}
             >
               <Star className="w-5 h-5 text-yellow-400 mr-2" />
               <span className="text-accent-200 font-semibold">🔥 Limited Time: 50% Off Implementation</span>
@@ -219,7 +220,8 @@ export const ConversionHero = () => {
               <div className="absolute -top-4 -right-4 bg-accent-500 text-white text-sm font-semibold px-3 py-2 rounded-full">
                 🎯 Live Results
               </div>
-              <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white text-sm font-semibold px-3 py-2 rounded-full">
+              <div className="absolute -bottom-4 -left-4 bg-primary-500 text-white text-sm font-semibold px-3 py-2 rounded-full"
+                   style={{ left: '1rem', bottom: '1rem', position: 'absolute' }}>
                 ⚡ Real-time AI
               </div>
             </div>

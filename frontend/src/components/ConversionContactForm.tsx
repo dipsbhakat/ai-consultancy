@@ -269,7 +269,7 @@ export const ConversionContactForm = () => {
                   Transform Your Business with AI
                 </h2>
                 <p className="text-gray-600 text-sm leading-relaxed">
-                  Get a customized strategy tailored to your needs.
+                  Get a customized strategy tailored to your specific needs.
                 </p>
               </div>
 

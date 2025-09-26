@@ -122,29 +122,34 @@ export class AnalyticsService {
     userId?: string,
     request?: any,
   ): Promise<void> {
-    const ipAddress = request?.ip || request?.connection?.remoteAddress;
-    const userAgent = request?.get?.('user-agent');
-    const referrer = request?.get?.('referer');
-    const pageUrl = eventData.pageUrl || request?.originalUrl;
+    try {
+      const ipAddress = request?.ip || request?.connection?.remoteAddress;
+      const userAgent = request?.get?.('user-agent');
+      const referrer = request?.get?.('referer');
+      const pageUrl = eventData.pageUrl || request?.originalUrl;
 
-    await this.prisma.analyticsEvent.create({
-      data: {
-        eventType,
-        eventData: JSON.stringify(eventData),
-        sessionId,
-        userId,
-        ipAddress,
-        userAgent,
-        referrer,
-        pageUrl,
-      },
-    });
+      await this.prisma.analyticsEvent.create({
+        data: {
+          eventType,
+          eventData: JSON.stringify(eventData),
+          sessionId,
+          userId,
+          ipAddress,
+          userAgent,
+          referrer,
+          pageUrl,
+        },
+      });
 
-    // Track conversion funnel progression
-    if (eventType === 'CONTACT_SUBMIT') {
-      await this.trackFunnelStage(sessionId, 'CONTACT', pageUrl, eventType);
-    } else if (eventType === 'FORM_INTERACTION') {
-      await this.trackFunnelStage(sessionId, 'ENGAGED', pageUrl, eventType);
+      // Track conversion funnel progression
+      if (eventType === 'CONTACT_SUBMIT') {
+        await this.trackFunnelStage(sessionId, 'CONTACT', pageUrl, eventType);
+      } else if (eventType === 'FORM_INTERACTION') {
+        await this.trackFunnelStage(sessionId, 'ENGAGED', pageUrl, eventType);
+      }
+    } catch (error) {
+      this.logger.error('Failed to track analytics event:', error);
+      throw error;
     }
   }
 

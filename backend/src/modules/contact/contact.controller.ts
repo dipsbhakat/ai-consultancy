@@ -216,20 +216,25 @@ export class ContactController {
       
       // Track the contact submission event
       const sessionId = request.headers['x-session-id'] || `session_${Date.now()}`;
-      await this.analyticsService.trackEvent(
-        'CONTACT_SUBMIT',
-        {
-          projectType: contactData.projectType,
-          budget: contactData.budget,
-          hasPhone: !!contactData.phone,
-          hasCompany: !!contactData.company,
-          messageLength: contactData.message.length,
-          pageUrl: request.headers.referer || request.originalUrl,
-        },
-        sessionId,
-        undefined,
-        request,
-      );
+      try {
+        await this.analyticsService.trackEvent(
+          'CONTACT_SUBMIT',
+          {
+            projectType: contactData.projectType,
+            budget: contactData.budget,
+            hasPhone: !!contactData.phone,
+            hasCompany: !!contactData.company,
+            messageLength: contactData.message.length,
+            pageUrl: request.headers.referer || request.originalUrl,
+          },
+          sessionId,
+          undefined,
+          request,
+        );
+      } catch (analyticsError) {
+        console.warn('Failed to track analytics event:', analyticsError.message);
+        // Don't fail the contact submission if analytics tracking fails
+      }
 
       // Calculate lead score automatically
       let leadScoreResult;
@@ -256,8 +261,22 @@ export class ContactController {
         leadScore: leadScoreResult,
       };
     } catch (error) {
+      console.error('Contact submission failed:', error);
+      console.error('Error stack:', error.stack);
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        cause: error.cause
+      });
+      
+      // Return a more detailed error message in development
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const errorMessage = isDevelopment 
+        ? `Failed to submit contact form: ${error.message}` 
+        : 'Failed to submit contact form';
+      
       throw new HttpException(
-        'Failed to submit contact form',
+        errorMessage,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

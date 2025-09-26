@@ -22,6 +22,7 @@ interface FormData {
   budget: string;
   timeline: string;
   message: string;
+  consent: boolean;
 }
 
 const projectTypes = [
@@ -68,7 +69,8 @@ export const ConversionContactForm = () => {
     projectType: '',
     budget: '',
     timeline: '',
-    message: ''
+    message: '',
+    consent: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,12 +86,41 @@ export const ConversionContactForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Get backend URL from environment or use default
+      const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
+      
+      const response = await fetch(`${backendUrl}/contact/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company: formData.company,
+          projectType: formData.projectType,
+          budget: formData.budget,
+          message: formData.message,
+          consent: formData.consent,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Form submitted successfully:', result);
+        setIsSubmitting(false);
+        setIsSuccess(true);
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Form submission failed:', error);
       setIsSubmitting(false);
-      setIsSuccess(true);
-      console.log('Form submitted:', formData);
-    }, 2000);
+      // You could add error state here to show error message to user
+      alert('Sorry, there was an error submitting your form. Please try again or contact us directly.');
+    }
   };
 
   const nextStep = () => {
@@ -107,7 +138,7 @@ export const ConversionContactForm = () => {
       case 2:
         return formData.projectType && formData.budget && formData.timeline;
       case 3:
-        return true;
+        return formData.consent; // Require consent to submit
       default:
         return false;
     }
@@ -425,6 +456,21 @@ export const ConversionContactForm = () => {
                       />
                     </div>
 
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="consent"
+                        name="consent"
+                        checked={formData.consent}
+                        onChange={(e) => setFormData(prev => ({ ...prev, consent: e.target.checked }))}
+                        className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        required
+                      />
+                      <label htmlFor="consent" className="text-sm text-gray-600">
+                        I agree to receive communications about my project inquiry and understand that my information will be used in accordance with your privacy policy.
+                      </label>
+                    </div>
+
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
                       <div className="flex items-start space-x-3">
                         <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
@@ -466,7 +512,7 @@ export const ConversionContactForm = () => {
                     ) : (
                       <button
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !formData.consent}
                         className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center group"
                       >
                         {isSubmitting ? (

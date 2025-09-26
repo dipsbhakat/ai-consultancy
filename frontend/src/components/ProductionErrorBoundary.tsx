@@ -86,7 +86,7 @@ User Agent: ${navigator.userAgent}
 Please describe what you were doing when this error occurred:
     `);
     
-    window.open(`mailto:support@yourdomain.com?subject=${subject}&body=${body}`);
+    window.open(`mailto:dipeshbhakat5@gmail.com?subject=${subject}&body=${body}`);
   };
 
   public render() {

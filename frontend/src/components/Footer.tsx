@@ -106,11 +106,11 @@ export function Footer() {
                 <ul role="list" className="mt-6 space-y-4">
                   <li className="flex items-center space-x-3 text-sm text-muted-300">
                     <Mail className="h-4 w-4" />
-                    <span>bengalmindaiconsultancy@gmail.com</span>
+                    <span>dipeshbhakat5@gmail.com</span>
                   </li>
                   <li className="flex items-center space-x-3 text-sm text-muted-300">
                     <Phone className="h-4 w-4" />
-                    <span>+91 (000) 123-4567</span>
+                    <span>+91 8297982233</span>
                   </li>
                   <li className="flex items-center space-x-3 text-sm text-muted-300">
                     <MapPin className="h-4 w-4" />

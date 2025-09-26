@@ -55,8 +55,8 @@ export const SettingsPage = () => {
   const [systemSettings, setSystemSettings] = useState<SystemSettings>({
     siteName: 'AI Consultancy',
     siteDescription: 'Professional AI consulting services',
-    contactEmail: 'contact@aicompany.com',
-    supportEmail: 'support@aicompany.com',
+    contactEmail: 'dipeshbhakat5@gmail.com',
+    supportEmail: 'dipeshbhakat5@gmail.com',
     maintenanceMode: false,
     allowRegistration: true,
     defaultUserRole: 'VIEWER',

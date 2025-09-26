@@ -262,11 +262,11 @@ export const ConversionContactForm = () => {
                 <div className="mt-8 flex items-center space-x-6 text-sm text-gray-600">
                   <div className="flex items-center">
                     <Phone className="w-4 h-4 mr-2" />
-                    <span>+1 (555) 123-4567</span>
+                    <span>+91 8297982233</span>
                   </div>
                   <div className="flex items-center">
                     <Mail className="w-4 h-4 mr-2" />
-                    <span>bengalmindaiconsultancy@gmail.com</span>
+                    <span>dipeshbhakat5@gmail.com</span>
                   </div>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export const ConversionContactForm = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                        placeholder="+1 (555) 123-4567"
+                        placeholder="+91 8297982233"
                       />
                     </div>
                   </motion.div>

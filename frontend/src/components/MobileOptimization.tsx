@@ -40,7 +40,7 @@ export const MobileOptimization = () => {
 
         {/* Call Button */}
         <motion.a
-          href="tel:+919876543210"
+          href="tel:+918297982233"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
@@ -104,7 +104,7 @@ export const MobileOptimization = () => {
 
               <div className="space-y-4">
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+918297982233"
                   className="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300"
                 >
                   <Phone className="w-6 h-6 mr-3" />
@@ -112,7 +112,7 @@ export const MobileOptimization = () => {
                 </a>
 
                 <a
-                  href="https://wa.me/919876543210?text=Hi! I'm interested in AI solutions for my business."
+                  href="https://wa.me/918297982233?text=Hi! I'm interested in AI solutions for my business."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center p-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300"

@@ -49,7 +49,15 @@ export function Header() {
   // Simple focus management without aggressive trapping
   const handleMobileMenuToggle = (open: boolean) => {
     setMobileMenuOpen(open);
-    // Let browser handle focus naturally, no manual intervention
+    
+    if (open) {
+      // When opening mobile menu, scroll to top and prevent body scroll
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable body scroll when closing
+      document.body.style.overflow = 'unset';
+    }
   };
 
   return (

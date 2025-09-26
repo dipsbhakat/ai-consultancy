@@ -82,30 +82,65 @@ export const ConversionContactForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Prevent Enter key from submitting form unless we're on step 3 and ready
+    if (e.key === 'Enter' && currentStep !== 3) {
+      e.preventDefault();
+      // If we're not on the last step and Enter is pressed, go to next step instead
+      if (isStepValid()) {
+        nextStep();
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submission started', formData);
+    console.log('Current step:', currentStep);
+    
+    // Only allow submission on step 3
+    if (currentStep !== 3) {
+      console.log('Form submitted before reaching step 3, ignoring');
+      return;
+    }
+    
+    // Validate essential required fields
+    if (!formData.name || !formData.email || !formData.company || !formData.consent) {
+      alert('Please fill in all required fields (Name, Email, Company) and check the consent checkbox.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       // Get backend URL from environment or use default
       const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://ai-consultancy-backend-nodejs.onrender.com/api/v1';
       
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || '',
+        company: formData.company,
+        projectType: formData.projectType || '',
+        budget: formData.budget || '',
+        message: formData.message || '',
+        consent: formData.consent,
+      };
+
+      console.log('Sending payload to backend:', payload);
+      console.log('Backend URL:', `${backendUrl}/contact/submit`);
+      console.log('Full fetch URL:', `${backendUrl}/contact/submit`);
+      
       const response = await fetch(`${backendUrl}/contact/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
-          projectType: formData.projectType,
-          budget: formData.budget,
-          message: formData.message,
-          consent: formData.consent,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
 
       if (response.ok) {
         const result = await response.json();
@@ -113,13 +148,15 @@ export const ConversionContactForm = () => {
         setIsSubmitting(false);
         setIsSuccess(true);
       } else {
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       console.error('Form submission failed:', error);
       setIsSubmitting(false);
-      // You could add error state here to show error message to user
-      alert('Sorry, there was an error submitting your form. Please try again or contact us directly.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Sorry, there was an error submitting your form: ${errorMessage}. Please try again or contact us directly.`);
     }
   };
 
@@ -136,12 +173,37 @@ export const ConversionContactForm = () => {
       case 1:
         return formData.name && formData.email && formData.company;
       case 2:
-        return formData.projectType && formData.budget && formData.timeline;
+        // Make step 2 fields optional to allow progression
+        return true;
       case 3:
         return formData.consent; // Require consent to submit
       default:
         return false;
     }
+  };
+
+  const isFormReadyForSubmission = () => {
+    // Only require essential fields for submission
+    const hasRequiredFields = (
+      formData.name &&
+      formData.email &&
+      formData.company &&
+      formData.consent &&
+      currentStep === 3 &&
+      !isSubmitting
+    );
+    
+    console.log('=== BUTTON VALIDATION DEBUG ===');
+    console.log('Current step:', currentStep);
+    console.log('Name:', formData.name);
+    console.log('Email:', formData.email);
+    console.log('Company:', formData.company);
+    console.log('Consent:', formData.consent);
+    console.log('Is submitting:', isSubmitting);
+    console.log('Has required fields:', hasRequiredFields);
+    console.log('================================');
+    
+    return hasRequiredFields;
   };
 
   if (isSuccess) {
@@ -294,7 +356,7 @@ export const ConversionContactForm = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <motion.div
@@ -512,7 +574,7 @@ export const ConversionContactForm = () => {
                     ) : (
                       <button
                         type="submit"
-                        disabled={isSubmitting || !formData.consent}
+                        disabled={!isFormReadyForSubmission()}
                         className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center group"
                       >
                         {isSubmitting ? (

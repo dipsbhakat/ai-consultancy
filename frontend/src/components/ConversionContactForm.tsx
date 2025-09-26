@@ -253,10 +253,10 @@ export const ConversionContactForm = () => {
   }
 
   return (
-    <section id="contact-form" className="section-padding bg-gradient-to-br from-gray-50 to-white overflow-x-hidden">
-      <div className="container-custom">
+    <section id="contact-form" className="py-8 sm:py-12 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
+      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left Column - Value Proposition */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -340,31 +340,32 @@ export const ConversionContactForm = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-white rounded-xl lg:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 w-full max-w-full min-h-0"
+              className="w-full"
             >
-              <div className="max-h-[80vh] sm:max-h-none overflow-y-auto overflow-x-hidden">
+              <div className="bg-white rounded-xl lg:rounded-2xl shadow-2xl">
+                <div className="p-4 sm:p-6 lg:p-8">
               {/* Progress Bar */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">Get Your Free Consultation</h3>
-                  <span className="text-sm text-gray-500">Step {currentStep} of 3</span>
+              <div className="mb-6 sm:mb-8">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Get Your Free Consultation</h3>
+                  <span className="text-xs sm:text-sm text-gray-500">Step {currentStep} of 3</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
                   <div 
-                    className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full transition-all duration-500"
+                    className="bg-gradient-to-r from-primary-500 to-accent-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                     style={{ width: `${(currentStep / 3) * 100}%` }}
                   ></div>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+              <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-6">
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <h4 className="text-lg font-semibold text-gray-900 mb-4">Tell us about yourself</h4>
                     
@@ -377,7 +378,7 @@ export const ConversionContactForm = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base"
                         placeholder="John Smith"
                         required
                       />
@@ -392,7 +393,7 @@ export const ConversionContactForm = () => {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base"
                         placeholder="john@company.com"
                         required
                       />
@@ -407,7 +408,7 @@ export const ConversionContactForm = () => {
                         name="company"
                         value={formData.company}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base"
                         placeholder="Your Company Inc."
                         required
                       />
@@ -422,7 +423,7 @@ export const ConversionContactForm = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base"
                         placeholder="+91 8297982233"
                       />
                     </div>
@@ -435,7 +436,7 @@ export const ConversionContactForm = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <h4 className="text-lg font-semibold text-gray-900 mb-4">Project details</h4>
                     
@@ -447,7 +448,7 @@ export const ConversionContactForm = () => {
                         name="projectType"
                         value={formData.projectType}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base bg-white"
                         required
                       >
                         <option value="">Select project type</option>
@@ -465,7 +466,7 @@ export const ConversionContactForm = () => {
                         name="budget"
                         value={formData.budget}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base bg-white"
                         required
                       >
                         <option value="">Select budget range</option>
@@ -483,7 +484,7 @@ export const ConversionContactForm = () => {
                         name="timeline"
                         value={formData.timeline}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors relative z-10"
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base bg-white"
                         required
                       >
                         <option value="">Select timeline</option>
@@ -501,7 +502,7 @@ export const ConversionContactForm = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="space-y-6"
+                    className="space-y-4 sm:space-y-6"
                   >
                     <h4 className="text-lg font-semibold text-gray-900 mb-4">Tell us about your project</h4>
                     
@@ -513,8 +514,8 @@ export const ConversionContactForm = () => {
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                        rows={6}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                        rows={5}
+                        className="w-full px-3 py-2.5 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-base resize-none"
                         placeholder="Tell us about your current challenges, goals, and what you're hoping to achieve with AI..."
                       />
                     </div>
@@ -550,38 +551,38 @@ export const ConversionContactForm = () => {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex flex-col sm:flex-row justify-between mt-8 pt-6 border-t border-gray-200 gap-3 sm:gap-0">
+                <div className="flex flex-col-reverse sm:flex-row justify-between mt-6 sm:mt-8 pt-6 border-t border-gray-200 gap-3">
                   {currentStep > 1 && (
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors order-2 sm:order-1"
+                      className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-base font-medium"
                     >
                       Previous
                     </button>
                   )}
                   
-                  <div className={`${currentStep > 1 ? 'order-1 sm:order-2' : ''} sm:ml-auto`}>
+                  <div className={`${currentStep > 1 ? '' : 'ml-auto'}`}>
                     {currentStep < 3 ? (
                       <button
                         type="button"
                         onClick={nextStep}
                         disabled={!isStepValid()}
-                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-6 py-2.5 sm:py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group text-base"
                       >
                         Next Step
-                        <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                       </button>
                     ) : (
                       <button
                         type="submit"
                         disabled={!isFormReadyForSubmission()}
-                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-6 py-2.5 sm:py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group text-base"
                       >
                         {isSubmitting ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                          <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                         ) : (
-                          <Send className="mr-2 w-5 h-5" />
+                          <Send className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
                         )}
                         {isSubmitting ? 'Sending...' : 'Get My Free Consultation'}
                       </button>
@@ -590,8 +591,8 @@ export const ConversionContactForm = () => {
                 </div>
               </form>
 
-              <div className="mt-6 text-center text-sm text-gray-500">
-                <div className="flex items-center justify-center space-x-4">
+              <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-500">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
                   <div className="flex items-center">
                     <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
                     Free consultation
@@ -606,6 +607,7 @@ export const ConversionContactForm = () => {
                   </div>
                 </div>
               </div>
+                </div>
               </div>
             </motion.div>
           </div>

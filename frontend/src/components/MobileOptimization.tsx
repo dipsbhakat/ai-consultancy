@@ -81,10 +81,10 @@ export const MobileOptimization = () => {
         </motion.button>
       </div>
 
-      {/* Mobile Quick Action Menu */}
+      {/* Quick Action Menu */}
       <AnimatePresence>
         {showMobileMenu && (
-          <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="fixed inset-0 z-50">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -97,7 +97,7 @@ export const MobileOptimization = () => {
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 100 }}
-              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 shadow-2xl"
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 shadow-2xl max-w-md mx-auto lg:max-w-lg"
             >
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Get Started</h3>

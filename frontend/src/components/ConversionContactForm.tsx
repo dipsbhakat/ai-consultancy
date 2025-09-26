@@ -253,10 +253,286 @@ export const ConversionContactForm = () => {
   }
 
   return (
-    <section id="contact-form" className="py-8 sm:py-12 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
-      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+    <section id="contact-form" className="relative">
+      {/* Mobile Layout */}
+      <div className="block lg:hidden">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+          <div className="px-4 py-6">
+            <div className="max-w-md mx-auto">
+              {/* Mobile Header */}
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-accent-100 rounded-full px-4 py-2 mb-4">
+                  <Star className="w-4 h-4 text-primary-600 mr-2" />
+                  <span className="text-primary-800 font-semibold text-sm">Free Consultation</span>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  Transform Your Business with AI
+                </h2>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Get a customized strategy tailored to your needs.
+                </p>
+              </div>
+
+              {/* Mobile Form */}
+              <div className="bg-white rounded-xl shadow-2xl p-6">
+                {/* Progress Bar */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-900">Get Started</h3>
+                    <span className="text-xs text-gray-500">Step {currentStep} of 3</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${(currentStep / 3) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="space-y-4">
+                  {/* Step 1: Basic Information */}
+                  {currentStep === 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="space-y-4"
+                    >
+                      <h4 className="text-base font-semibold text-gray-900 mb-4">About You</h4>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
+                          placeholder="John Smith"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
+                          placeholder="john@company.com"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Company *</label>
+                        <input
+                          type="text"
+                          name="company"
+                          value={formData.company}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
+                          placeholder="Your Company"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base"
+                          placeholder="+91 8297982233"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2: Project Details */}
+                  {currentStep === 2 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="space-y-4"
+                    >
+                      <h4 className="text-base font-semibold text-gray-900 mb-4">Project Details</h4>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label>
+                        <select
+                          name="projectType"
+                          value={formData.projectType}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base bg-white"
+                        >
+                          <option value="">Select project type</option>
+                          {projectTypes.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Budget Range</label>
+                        <select
+                          name="budget"
+                          value={formData.budget}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base bg-white"
+                        >
+                          <option value="">Select budget range</option>
+                          {budgetRanges.map(budget => (
+                            <option key={budget} value={budget}>{budget}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Timeline</label>
+                        <select
+                          name="timeline"
+                          value={formData.timeline}
+                          onChange={handleInputChange}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base bg-white"
+                        >
+                          <option value="">Select timeline</option>
+                          {timelines.map(timeline => (
+                            <option key={timeline} value={timeline}>{timeline}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 3: Message */}
+                  {currentStep === 3 && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="space-y-4"
+                    >
+                      <h4 className="text-base font-semibold text-gray-900 mb-4">Tell Us About Your Project</h4>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Project Description</label>
+                        <textarea
+                          name="message"
+                          value={formData.message}
+                          onChange={handleInputChange}
+                          rows={4}
+                          className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base resize-none"
+                          placeholder="Tell us about your goals and challenges..."
+                        />
+                      </div>
+
+                      <div className="flex items-start space-x-3">
+                        <input
+                          type="checkbox"
+                          id="consent-mobile"
+                          name="consent"
+                          checked={formData.consent}
+                          onChange={(e) => setFormData(prev => ({ ...prev, consent: e.target.checked }))}
+                          className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                          required
+                        />
+                        <label htmlFor="consent-mobile" className="text-xs text-gray-600">
+                          I agree to receive communications about my project inquiry.
+                        </label>
+                      </div>
+
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3">
+                        <div className="flex items-start space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h5 className="font-semibold text-green-900 mb-1 text-sm">What happens next?</h5>
+                            <p className="text-xs text-green-700">
+                              We'll review your requirements and call you within 24 hours. No commitment required.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Mobile Navigation Buttons */}
+                  <div className="flex flex-col gap-3 mt-6 pt-4 border-t border-gray-200">
+                    {currentStep < 3 ? (
+                      <>
+                        {currentStep > 1 && (
+                          <button
+                            type="button"
+                            onClick={prevStep}
+                            className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-base font-medium"
+                          >
+                            Previous
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={nextStep}
+                          disabled={!isStepValid()}
+                          className="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-4 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-base"
+                        >
+                          Next Step
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={prevStep}
+                          className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-base font-medium"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={!isFormReadyForSubmission()}
+                          className="w-full bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-4 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-base"
+                        >
+                          {isSubmitting ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                          ) : (
+                            <Send className="mr-2 w-4 h-4" />
+                          )}
+                          {isSubmitting ? 'Sending...' : 'Get Free Consultation'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </form>
+
+                <div className="mt-4 text-center text-xs text-gray-500">
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <div className="flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                      Free consultation
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                      24h response
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:block py-8 sm:py-12 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left Column - Value Proposition */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -605,13 +881,14 @@ export const ConversionContactForm = () => {
                     <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
                     Quick response
                   </div>
+                  </div>
                 </div>
-              </div>
                 </div>
               </div>
             </motion.div>
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

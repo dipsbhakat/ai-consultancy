@@ -28,16 +28,35 @@ export const ContactsPage: React.FC = () => {
       title: 'Name',
       sortable: true,
       filterable: true,
+      width: '150px',
+      render: (value) => (
+        <Text variant="label-sm" weight="medium" color="primary">
+          {value}
+        </Text>
+      )
+    },
+    {
+      key: 'email',
+      title: 'Email',
+      sortable: true,
+      filterable: true,
       width: '200px',
-      render: (value, row) => (
-        <div className="flex flex-col">
-          <Text variant="label-sm" weight="medium" color="primary">
-            {value}
-          </Text>
-          <Text variant="body-sm" color="secondary">
-            {row.email}
-          </Text>
-        </div>
+      render: (value) => (
+        <Text variant="body-sm" color="secondary">
+          {value}
+        </Text>
+      )
+    },
+    {
+      key: 'phone',
+      title: 'Mobile Number',
+      sortable: true,
+      filterable: true,
+      width: '150px',
+      render: (value) => (
+        <Text variant="body-sm" color={value ? 'secondary' : 'tertiary'}>
+          {value || '—'}
+        </Text>
       )
     },
     {
@@ -174,6 +193,18 @@ export const ContactsPage: React.FC = () => {
       label: 'Company',
       type: 'text' as const,
       placeholder: 'Filter by company...'
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      type: 'text' as const,
+      placeholder: 'Filter by email...'
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      type: 'text' as const,
+      placeholder: 'Filter by phone...'
     }
   ];
 

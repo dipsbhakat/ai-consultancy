@@ -193,7 +193,8 @@ export class ContactService {
     company?: string;
     projectType?: string;
     budget?: string;
-    message: string;
+    timeline?: string;
+    message?: string;
     consent: boolean;
   }): Promise<{ id: string; submittedAt: Date }> {
     try {
@@ -206,7 +207,7 @@ export class ContactService {
           company: contactData.company,
           projectType: contactData.projectType,
           budget: contactData.budget,
-          message: contactData.message,
+          message: contactData.message || 'No message provided',
           consent: contactData.consent,
           status: 'NEW',
           priority: 'MEDIUM',

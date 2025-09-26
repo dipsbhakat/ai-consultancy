@@ -40,10 +40,13 @@ export class ContactSubmissionDto {
   @IsString()
   budget?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @MinLength(10)
-  message: string;
+  timeline?: string;
+
+  @IsOptional()
+  @IsString()
+  message?: string;
 
   @IsBoolean()
   consent: boolean;
@@ -214,51 +217,54 @@ export class ContactController {
     try {
       const submission = await this.contactService.submitContact(contactData);
       
-      // Track the contact submission event
-      const sessionId = request.headers['x-session-id'] || `session_${Date.now()}`;
+      // Track analytics event
       try {
         await this.analyticsService.trackEvent(
           'CONTACT_SUBMIT',
           {
+            name: contactData.name,
+            email: contactData.email,
+            company: contactData.company,
             projectType: contactData.projectType,
             budget: contactData.budget,
             hasPhone: !!contactData.phone,
-            hasCompany: !!contactData.company,
-            messageLength: contactData.message.length,
-            pageUrl: request.headers.referer || request.originalUrl,
+            hasMessage: !!contactData.message,
+            submissionId: submission.id,
           },
-          sessionId,
-          undefined,
+          request.sessionID || 'anonymous',
+          contactData.email,
           request,
         );
       } catch (analyticsError) {
-        console.warn('Failed to track analytics event:', analyticsError.message);
-        // Don't fail the contact submission if analytics tracking fails
+        // Don't let analytics errors break the contact submission
+        console.warn('Analytics tracking failed, but contact submission succeeded:', analyticsError);
       }
-
-      // Calculate lead score automatically
-      let leadScoreResult;
+      
+      // Calculate lead score
+      let leadScore;
       try {
         const leadScoreFactors = await this.analyticsService.calculateLeadScore(submission.id);
-        
-        // Get the stored lead score for the response
-        const leadScore = await this.contactService.getLeadScoreForContact(submission.id);
-        if (leadScore) {
-          leadScoreResult = {
-            totalScore: leadScore.totalScore,
-            grade: leadScore.grade,
-          };
+        if (leadScoreFactors) {
+          const totalScore = leadScoreFactors.demandScore + leadScoreFactors.engagementScore + 
+                           leadScoreFactors.qualityScore + leadScoreFactors.urgencyScore;
+          
+          let grade = 'D';
+          if (totalScore >= 80) grade = 'A';
+          else if (totalScore >= 60) grade = 'B'; 
+          else if (totalScore >= 40) grade = 'C';
+          
+          leadScore = { totalScore, grade };
         }
-      } catch (error) {
-        console.warn('Failed to calculate lead score:', error.message);
-        // Don't fail the contact submission if lead scoring fails
+      } catch (leadScoreError) {
+        // Don't let lead scoring errors break the contact submission
+        console.warn('Lead score calculation failed, but contact submission succeeded:', leadScoreError);
       }
       
       return {
         message: 'Contact form submitted successfully. We will get back to you soon!',
         submissionId: submission.id,
         submittedAt: submission.submittedAt.toISOString(),
-        leadScore: leadScoreResult,
+        ...(leadScore && { leadScore }),
       };
     } catch (error) {
       console.error('Contact submission failed:', error);

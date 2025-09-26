@@ -131,7 +131,20 @@ export const MobileOptimization = () => {
                 <button
                   onClick={() => {
                     setShowMobileMenu(false);
-                    document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
+                    // Try multiple ways to find and scroll to the contact form
+                    const contactForm = document.getElementById('contact-form') || 
+                                       document.querySelector('[id*="contact"]') || 
+                                       document.querySelector('section.section-padding');
+                    
+                    if (contactForm) {
+                      contactForm.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                    } else {
+                      // Fallback: navigate to contact page
+                      window.location.href = '/contact';
+                    }
                   }}
                   className="w-full flex items-center p-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-accent-700 transition-all duration-300"
                 >
@@ -182,7 +195,20 @@ export const MobileCTABar = () => {
             </div>
             <button
               onClick={() => {
-                document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
+                // Try multiple ways to find and scroll to the contact form
+                const contactForm = document.getElementById('contact-form') || 
+                                   document.querySelector('[id*="contact"]') || 
+                                   document.querySelector('section.section-padding');
+                
+                if (contactForm) {
+                  contactForm.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                  });
+                } else {
+                  // Fallback: navigate to contact page
+                  window.location.href = '/contact';
+                }
               }}
               className="bg-white text-primary-600 font-semibold px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
             >

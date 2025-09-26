@@ -253,10 +253,10 @@ export const ConversionContactForm = () => {
   }
 
   return (
-    <section className="section-padding bg-gradient-to-br from-gray-50 to-white">
+    <section id="contact-form" className="section-padding bg-gradient-to-br from-gray-50 to-white overflow-hidden">
       <div className="container-custom">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
             {/* Left Column - Value Proposition */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -264,7 +264,7 @@ export const ConversionContactForm = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <div className="sticky top-8">
+              <div className="lg:sticky lg:top-8">
                 <div className="mb-8">
                   <div className="inline-flex items-center bg-gradient-to-r from-primary-100 to-accent-100 rounded-full px-6 py-3 mb-6">
                     <Star className="w-5 h-5 text-primary-600 mr-2" />
@@ -340,7 +340,7 @@ export const ConversionContactForm = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-white rounded-2xl shadow-2xl p-8"
+              className="bg-white rounded-xl lg:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-8 w-full max-w-full overflow-hidden"
             >
               {/* Progress Bar */}
               <div className="mb-8">
@@ -549,24 +549,24 @@ export const ConversionContactForm = () => {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between mt-8 pt-6 border-t border-gray-200 gap-3 sm:gap-0">
                   {currentStep > 1 && (
                     <button
                       type="button"
                       onClick={prevStep}
-                      className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors order-2 sm:order-1"
                     >
                       Previous
                     </button>
                   )}
                   
-                  <div className="ml-auto">
+                  <div className={`${currentStep > 1 ? 'order-1 sm:order-2' : ''} sm:ml-auto`}>
                     {currentStep < 3 ? (
                       <button
                         type="button"
                         onClick={nextStep}
                         disabled={!isStepValid()}
-                        className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center group"
+                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-6 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
                       >
                         Next Step
                         <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -575,7 +575,7 @@ export const ConversionContactForm = () => {
                       <button
                         type="submit"
                         disabled={!isFormReadyForSubmission()}
-                        className="bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center group"
+                        className="w-full sm:w-auto bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold px-8 py-3 rounded-lg hover:from-primary-700 hover:to-accent-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
                       >
                         {isSubmitting ? (
                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
